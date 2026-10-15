@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MARAUDERmt</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22black%22/%3E%3Cpath%20d%3D%22M50%206%20L92%2050%20L50%2094%20L8%2050%20Z%22%20stroke%3D%22red%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%3Cline%20x1%3D%2250%22%20y1%3D%226%22%20x2%3D%2250%22%20y2%3D%2294%22%20stroke%3D%22red%22%20stroke-width%3D%225%22/%3E%3Cline%20x1%3D%228%22%20y1%3D%2250%22%20x2%3D%2292%22%20y2%3D%2250%22%20stroke%3D%22red%22%20stroke-width%3D%225%22/%3E%3Cpath%20d%3D%22M28%2028%20L50%2050%20L28%2072%22%20stroke%3D%22red%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%3Cpath%20d%3D%22M72%2028%20L50%2050%20L72%2072%22%20stroke%3D%22red%22%20stroke-width%3D%225%22%20fill%3D%22none%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Text:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#000;--panel:#0a0a0a;--line:#3a0000;--text:#fff;--mute:#ff2b2b;--cyan:#ff0000;--pink:#fff;--lime:#ff2b2b;--red-mid:#cc0000;--mono:"Share Tech Mono",ui-monospace,"Courier New",monospace}
+*{box-sizing:border-box}
+body{margin:0;font:500 1.15rem/1.35 "Big Shoulders Stencil Text",sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh}
+.wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 340px}
+main{padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0;overflow:auto}
+.screen,.deck{position:relative;border:1px solid var(--cyan);border-radius:0;padding:10px;background:var(--panel);box-shadow:inset 0 0 40px rgba(255,0,0,.1),0 0 18px rgba(255,0,0,.07)}
+.screen video,.screen iframe{display:block;width:100%;aspect-ratio:16/9;background:#000;border:0;border-radius:0;max-height:68vh;filter:var(--f-inv,) var(--f-bw,) var(--f-sepia,) var(--f-con,) var(--f-vivid,) var(--f-faded,) var(--f-night,) var(--f-cool,) var(--f-green,) var(--f-amber,) var(--f-crt,) var(--f-vhs,) var(--f-glow,) var(--f-blur,)}
+.screen iframe{display:none}
+.fx-bw{--f-bw:grayscale(1)}
+.fx-sepia{--f-sepia:sepia(.85)}
+.fx-contrast{--f-con:contrast(1.35) saturate(1.2)}
+.fx-crt{--f-crt:contrast(1.1) saturate(1.15) brightness(1.05)}
+.fx-vhs{--f-vhs:saturate(1.4) blur(.5px) hue-rotate(-6deg)}
+.fx-invert{--f-inv:invert(1) hue-rotate(180deg)}
+.fx-vivid{--f-vivid:saturate(1.8) contrast(1.1)}
+.fx-faded{--f-faded:saturate(.55) contrast(.9) brightness(1.1)}
+.fx-night{--f-night:sepia(.4) brightness(.72) saturate(.9)}
+.fx-cool{--f-cool:sepia(.3) hue-rotate(170deg) saturate(1.3)}
+.fx-green{--f-green:grayscale(1) sepia(1) hue-rotate(65deg) saturate(3)}
+.fx-amber{--f-amber:grayscale(1) sepia(1) saturate(3) hue-rotate(-12deg)}
+.fx-glow{--f-glow:brightness(1.12) saturate(1.3) drop-shadow(0 0 6px rgba(255,0,0,.55))}
+.fx-blur{--f-blur:blur(1.2px)}
+.fx-mirror video,.fx-mirror iframe{transform:scaleX(-1)}
+.fx-mask .l-mask{display:block;opacity:.3;mix-blend-mode:multiply;background:repeating-linear-gradient(90deg,#f00 0 1px,#0f0 1px 2px,#00f 2px 3px)}
+.layers{position:absolute;inset:10px;border-radius:0;overflow:hidden;pointer-events:none;z-index:2}
+.layers i{position:absolute;inset:0;display:none}
+.fx-scan .l-scan,.fx-crt .l-scan{display:block;background:repeating-linear-gradient(0deg,rgba(0,0,0,.3) 0 1px,transparent 1px 3px)}
+.fx-vig .l-vig,.fx-crt .l-vig{display:block;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%);box-shadow:inset 0 0 40px rgba(0,0,0,.6)}
+.fx-grain .l-grain{display:block;opacity:.22;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");animation:grain .6s steps(1) infinite}
+.fx-vhs .l-vhs{display:block;background:linear-gradient(90deg,rgba(255,0,60,.07),transparent 25%,transparent 75%,rgba(0,200,255,.07))}
+.fx-vhs .l-vhs::after{content:"";position:absolute;left:0;right:0;height:14%;background:linear-gradient(transparent,rgba(255,255,255,.1),transparent);animation:roll 5s linear infinite}
+.fx-crt .l-flick{display:block;background:#fff;opacity:.03;animation:flick .12s steps(2) infinite}
+@keyframes grain{0%{background-position:0 0}25%{background-position:-40px 30px}50%{background-position:30px -50px}75%{background-position:-20px -20px}100%{background-position:50px 40px}}
+@keyframes roll{from{transform:translateY(-100%)}to{transform:translateY(800%)}}
+@keyframes flick{0%{opacity:.01}100%{opacity:.06}}
+@media (prefers-reduced-motion:reduce){.l-grain,.l-vhs::after,.l-flick{animation:none!important}}
+.fxbar{display:flex;flex-direction:column;gap:8px}
+.fxpanel{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:0;background:var(--panel)}
+.fxpanel[hidden]{display:none}
+.fxgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#fxtoggle{align-self:flex-start;border-color:var(--cyan);color:var(--cyan);border-radius:0;padding:4px 14px;text-shadow:0 0 8px rgba(255,0,0,.6)}
+.fxbar span{color:var(--mute);margin-right:4px}
+.fxbar button{all:unset;cursor:pointer;padding:3px 10px;border:1px solid var(--line);border-radius:0;color:var(--mute)}
+.fxbar button:hover{color:var(--text);border-color:var(--cyan)}
+.fxbar button[aria-pressed=true]{color:var(--cyan);border-color:var(--cyan);box-shadow:0 0 10px rgba(255,0,0,.5);text-shadow:0 0 8px var(--cyan)}
+.fxbar button:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.deck{display:none;padding:22px 16px}
+.deck audio{display:block;width:100%;color-scheme:dark}
+#now{color:var(--lime);min-height:1.4em;text-shadow:0 0 8px rgba(255,43,43,.6)}
+#now::before{content:"> "}
+#now::after{content:"\2588";margin-left:4px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+small{color:var(--mute);font-size:1rem}
+aside{background:var(--panel);border-left:2px solid var(--line);display:flex;flex-direction:column;min-height:0;box-shadow:-8px 0 30px rgba(255,0,0,.06)}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid var(--line)}
+.tabs button{all:unset;text-align:center;padding:12px 4px;cursor:pointer;color:var(--mute);border-bottom:3px solid transparent;font-family:inherit;font-size:1.05rem}
+.tabs button:hover{color:var(--text)}
+.tabs button[aria-selected=true]{color:var(--pink);border-bottom-color:var(--pink);text-shadow:0 0 8px var(--pink);box-shadow:0 8px 14px -10px var(--pink)}
+.tabs button:focus-visible{outline:2px solid var(--cyan);outline-offset:-3px}
+.ctl{padding:12px;display:grid;gap:10px;border-bottom:2px solid var(--line)}
+select,input{width:100%;padding:9px 10px;border-radius:0;border:1px solid var(--cyan);background:#050000;color:var(--text);font:inherit;box-shadow:inset 0 0 10px rgba(255,0,0,.12)}
+select:focus,input:focus{outline:none;box-shadow:0 0 12px rgba(255,0,0,.7),inset 0 0 10px rgba(255,0,0,.2)}
+option,optgroup{background:#050000;color:var(--text)}
+ul{list-style:none;margin:0;padding:0;overflow:auto;flex:1;scrollbar-color:var(--cyan) var(--panel)}
+li{position:relative}
+li .main{all:unset;display:block;width:100%;padding:9px 46px 9px 30px;cursor:pointer;border-bottom:1px solid var(--line);box-sizing:border-box;position:relative}
+li .main:hover,li .main:focus-visible{background:#1a0000;color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
+li .main:hover::before,li .main:focus-visible::before,li.on .main::before{content:">";position:absolute;left:12px;color:var(--pink)}
+li.on .main{color:var(--pink);text-shadow:0 0 8px var(--pink);background:#2a0000}
+li .main:focus-visible{outline:1px dashed var(--cyan);outline-offset:-3px}
+#avail{all:unset;cursor:pointer;text-align:center;padding:8px 10px;border:1px solid var(--lime);border-radius:0;color:var(--lime);box-shadow:inset 0 0 10px rgba(255,43,43,.1)}
+#avail:hover{box-shadow:0 0 12px rgba(255,43,43,.6)}
+#avail[aria-pressed=true]{background:rgba(255,43,43,.15);text-shadow:0 0 8px var(--lime)}
+#avail:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+#next{position:absolute;right:26px;bottom:66px;z-index:3;padding:10px 16px;border:1px solid var(--pink);border-radius:0;background:rgba(0,0,0,.9);color:var(--pink);font:inherit;cursor:pointer;box-shadow:0 0 14px rgba(255,0,0,.6);text-shadow:0 0 8px var(--pink)}
+#next:hover,#next:focus-visible{background:rgba(255,0,0,.22);outline:2px solid var(--cyan)}
+#next[hidden]{display:none}
+.star{all:unset;position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--mute);font-size:1.4rem;line-height:1;padding:4px 6px;border-radius:0}
+.star:hover{color:var(--pink);text-shadow:0 0 8px var(--pink)}
+.star[aria-pressed=true]{color:var(--lime);text-shadow:0 0 8px var(--lime)}
+.star:focus-visible{outline:2px solid var(--cyan)}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.tools[hidden]{display:none}
+.tools button{all:unset;cursor:pointer;padding:3px 12px;border:1px solid var(--pink);border-radius:0;color:var(--pink)}
+.tools button:hover{background:rgba(255,0,0,.18)}
+.tools button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.livebar{position:absolute;left:10px;right:10px;bottom:10px;z-index:4;display:flex;align-items:center;gap:10px;padding:26px 14px 10px;background:linear-gradient(transparent,rgba(0,0,0,.88));border-radius:0}
+.livebar[hidden]{display:none}
+.deck .livebar{position:static;padding:0;background:none}
+.lb,.livetag{all:unset;cursor:pointer;color:var(--cyan);padding:2px 10px;border:1px solid var(--cyan);border-radius:0;}
+.lb:hover{background:rgba(255,0,0,.15)}
+.lb:disabled{opacity:.35;cursor:default}
+.lb:disabled:hover{background:none}
+.livetag.behind{color:var(--lime);border-color:var(--lime);text-shadow:0 0 8px var(--lime)}
+.livetag.behind:hover{background:rgba(255,43,43,.15)}
+.livetag{margin-left:auto;color:#ff2b2b;border-color:#ff2b2b;text-shadow:0 0 8px #ff2b2b}
+.livetag:hover{background:rgba(255,43,43,.15)}
+.lb:focus-visible,.livetag:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+.livebar input[type=range]{width:90px;padding:0;border:0;background:none;box-shadow:none;accent-color:var(--cyan)}
+.screen:fullscreen{display:flex;align-items:center;justify-content:center;border-radius:0;border:0;padding:0;background:#000}
+.screen:fullscreen video,.screen:fullscreen iframe{max-height:100vh;height:100%;object-fit:contain;border-radius:0}
+.screen:fullscreen .layers{inset:0;border-radius:0}
+.screen:fullscreen .livebar{left:16px;right:16px;bottom:16px}
+.screen:-webkit-full-screen{display:flex;align-items:center;justify-content:center;border-radius:0;border:0;padding:0;background:#000}
+.screen:-webkit-full-screen video,.screen:-webkit-full-screen iframe{max-height:100vh;height:100%;object-fit:contain;border-radius:0}
+.screen:-webkit-full-screen .layers{inset:0;border-radius:0}
+.msg{padding:14px;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){#now::after{animation:none}}
+@media (max-width:760px){body{height:auto;min-height:100vh}.wrap{grid-template-columns:1fr;grid-template-rows:auto 1fr}aside{border-left:0;border-top:2px solid var(--line);max-height:60vh}main{overflow:visible}}
+
+/* ===== MARAUDERmt: red / black / white terminal, stencil + mono ===== */
+h1{margin:0;font-weight:inherit}
+.marauder-header{border-bottom:2px solid var(--cyan);background:#000;padding:18px 14px 14px;text-align:center;position:relative;flex:none;box-shadow:0 0 24px rgba(255,0,0,.14),inset 0 -10px 30px rgba(255,0,0,.04)}
+.marauder-header:before,.marauder-header:after{content:"";position:absolute;top:10px;bottom:10px;width:18px;border-top:1px solid var(--cyan);border-bottom:1px solid var(--cyan)}
+.marauder-header:before{left:10px;border-left:2px solid var(--cyan)}
+.marauder-header:after{right:10px;border-right:2px solid var(--cyan)}
+.top-emblem{width:42px;height:42px;margin:0 auto 6px;display:block;filter:drop-shadow(0 0 8px rgba(255,0,0,.55))}
+.top-emblem path,.top-emblem line{stroke:var(--cyan);stroke-width:2;fill:none}
+.marauder-name{font:700 clamp(28px,6vw,52px)/.95 "Big Shoulders Stencil Text",sans-serif;letter-spacing:8px;color:#fff;text-shadow:2px 2px 0 #3a0000,0 0 14px rgba(255,0,0,.75),0 0 34px rgba(255,0,0,.35);animation:mdrGlow 3.6s ease-in-out infinite}
+@keyframes mdrGlow{0%,100%{text-shadow:2px 2px 0 #3a0000,0 0 14px rgba(255,0,0,.75),0 0 34px rgba(255,0,0,.35)}50%{text-shadow:2px 2px 0 #3a0000,0 0 22px rgba(255,0,0,.95),0 0 50px rgba(255,0,0,.55)}}
+.marauder-sub{margin-top:6px;color:var(--mute);font:9px var(--mono);letter-spacing:4px;text-transform:uppercase}
+.mil-clock{display:inline-flex;justify-content:center;margin-top:10px;padding:5px 18px;min-width:170px;border:2px solid var(--cyan);background:#050000;color:#fff;font:700 clamp(22px,4.5vw,32px)/1 "Big Shoulders Stencil Text",sans-serif;letter-spacing:4px;text-shadow:2px 2px 0 #300000,0 0 9px rgba(255,0,0,.55);box-shadow:inset 0 0 0 1px #5c0000,0 0 14px rgba(255,0,0,.18)}
+.mil-clock-label{margin-top:4px;font:7px var(--mono);letter-spacing:3px;color:var(--mute)}
+.stencil-corner{position:absolute;width:9px;height:9px;border-color:#fff;opacity:.7}
+.stencil-corner.tl{left:16px;top:16px;border-top:1px solid;border-left:1px solid}
+.stencil-corner.tr{right:16px;top:16px;border-top:1px solid;border-right:1px solid}
+.stencil-corner.bl{left:16px;bottom:16px;border-bottom:1px solid;border-left:1px solid}
+.stencil-corner.br{right:16px;bottom:16px;border-bottom:1px solid;border-right:1px solid}
+.top-bar{flex:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--cyan);font:11px var(--mono);letter-spacing:1.5px;text-transform:uppercase}
+.top-bar .bright{color:#fff;font-weight:bold}.top-bar .dim{color:var(--mute)}
+.blinkdot{display:inline-block;width:6px;height:6px;background:var(--cyan);border-radius:50%;margin-right:6px;animation:pulse 1.4s infinite;box-shadow:0 0 10px var(--cyan),0 0 22px rgba(255,0,0,.5)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.bracket{position:absolute;width:18px;height:18px;border-color:var(--cyan);z-index:5;pointer-events:none;box-shadow:0 0 6px rgba(255,0,0,.5);animation:mdrBracketPulse 3.2s ease-in-out infinite}
+.bracket.tl{top:-1px;left:-1px;border-top:2px solid;border-left:2px solid}
+.bracket.tr{top:-1px;right:-1px;border-top:2px solid;border-right:2px solid}
+.bracket.bl{bottom:-1px;left:-1px;border-bottom:2px solid;border-left:2px solid}
+.bracket.br{bottom:-1px;right:-1px;border-bottom:2px solid;border-right:2px solid}
+@keyframes mdrBracketPulse{0%,100%{opacity:1}50%{opacity:.45}}
+.panel-head{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border:1px solid var(--red-mid);border-bottom:0;background:var(--panel);font:600 10px var(--mono);letter-spacing:2px;text-transform:uppercase}
+.panel-head .bright{color:#fff}.panel-head .dim{color:var(--mute)}
+.panel-head::after{content:"";position:absolute;left:-30%;top:0;bottom:0;width:30%;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,0,0,.35),transparent);mix-blend-mode:screen;animation:mdrSweep 5s linear infinite}
+@keyframes mdrSweep{0%{left:-30%}100%{left:100%}}
+.stage-head{margin-bottom:-12px}
+aside .panel-head{border-width:0 0 1px;border-color:var(--red-mid)}
+/* CRT scanlines + faint grid */
+body::before{content:"";position:fixed;inset:0;z-index:5000;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,0,0,.035) 0 1px,transparent 1px 3px);mix-blend-mode:screen;opacity:.5}
+body::after{content:"";position:fixed;inset:0;z-index:4999;pointer-events:none;background-image:linear-gradient(rgba(255,0,40,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,0,40,.05) 1px,transparent 1px);background-size:38px 38px;-webkit-mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 72%);mask-image:radial-gradient(ellipse at 50% 0,#000,transparent 72%)}
+/* mono utility face for readouts */
+#now,small,input,select,option,optgroup,.livebar,.lb,.livetag,#fxtoggle,.fxbar span,.fxbar button,#avail,.msg{font-family:var(--mono)}
+#now,small,.fxbar button,#avail,#fxtoggle,.lb,.livetag{font-size:.8rem;letter-spacing:.06em}
+select,input{font-size:.85rem}
+.tabs button{font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:.9rem}
+.tabs button[aria-selected=true]{color:#fff;border-bottom-color:var(--cyan);text-shadow:0 0 8px rgba(255,0,0,.9);box-shadow:0 8px 14px -10px var(--cyan)}
+li .main{letter-spacing:.03em}
+li .main:hover,li .main:focus-visible{background:rgba(255,0,0,.08);color:#fff;text-shadow:none;box-shadow:inset 3px 0 0 var(--cyan)}
+li .main:hover::before,li .main:focus-visible::before,li.on .main::before{color:var(--cyan)}
+li.on .main{color:#fff;background:#2a0000;box-shadow:inset 3px 0 0 var(--cyan);text-shadow:0 0 8px rgba(255,0,0,.8)}
+#now{color:#fff;text-shadow:0 0 8px rgba(255,0,0,.7)}
+#now::before{color:var(--cyan)}
+#fxtoggle,#avail,#next,.lb,.tools button{clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+#fxtoggle{color:#fff;border-color:var(--cyan);text-shadow:none}
+#avail{border-color:var(--cyan);color:#fff;box-shadow:inset 0 0 10px rgba(255,0,0,.12)}
+#avail:hover{box-shadow:0 0 12px rgba(255,0,0,.6)}
+#avail[aria-pressed=true]{background:rgba(255,0,0,.22);text-shadow:0 0 8px var(--cyan)}
+#next{border-color:var(--cyan);color:#fff;box-shadow:0 0 14px rgba(255,0,0,.6);text-shadow:none}
+#next:hover,#next:focus-visible{background:rgba(255,0,0,.3);outline:2px solid #fff}
+.tools button{border-color:var(--cyan);color:#fff}.tools button:hover{background:rgba(255,0,0,.25)}
+.livetag.behind{color:#fff;border-color:#fff;text-shadow:0 0 8px rgba(255,255,255,.6)}
+.star[aria-pressed=true]{color:var(--cyan);text-shadow:0 0 8px var(--cyan)}
+input:focus,select:focus{box-shadow:0 0 0 1px var(--cyan),0 0 10px rgba(255,0,0,.6)}
+.footer-note{text-align:center;font:9px var(--mono);letter-spacing:1px;color:var(--mute)}
+@media (max-width:760px){.top-bar{flex-direction:column;align-items:flex-start;gap:4px}}
+@media (prefers-reduced-motion:reduce){.marauder-name,.panel-head::after,.bracket,.blinkdot,body::before{animation:none!important}}
+
+/* live bar: just the LIVE tag + fullscreen button, tucked top-right so the native progress bar stays free */
+.livebar{left:auto;right:18px;top:18px;bottom:auto;padding:0;background:none;gap:8px}
+.deck .livebar{position:static;padding:0;margin-top:8px;justify-content:flex-end}
+.screen:fullscreen .livebar{left:auto;right:18px;top:18px;bottom:auto}
+.screen:-webkit-full-screen .livebar{left:auto;right:18px;top:18px;bottom:auto}
+.livebar .lb{background:rgba(0,0,0,.7)}
+.screen video::-webkit-media-controls-fullscreen-button{display:none}
+/* filters + overlays are on .screen, so fullscreen the whole .screen and they carry over */
+.screen:fullscreen .layers{z-index:2}
+.subinfo{font:.8rem var(--mono);letter-spacing:.06em;color:var(--mute);margin:2px 0 4px}
+.subinfo:empty{display:none}
+.screen video::cue{background:rgba(0,0,0,.78);color:#fff;font-family:"Share Tech Mono",ui-monospace,monospace}
+#grp{font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-color:var(--cyan)}
+#grp[hidden]{display:none}
+</style>
+</head>
+<body>
+<header class="marauder-header">
+  <span class="stencil-corner tl"></span><span class="stencil-corner tr"></span><span class="stencil-corner bl"></span><span class="stencil-corner br"></span>
+  <svg class="top-emblem" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 L92 50 L50 94 L8 50 Z"/><line x1="50" y1="6" x2="50" y2="94"/><line x1="8" y1="50" x2="92" y2="50"/><path d="M28 28 L50 50 L28 72"/><path d="M72 28 L50 50 L72 72"/></svg>
+  <h1 class="marauder-name">MARAUDERmt</h1>
+  <div class="marauder-sub">SIGNAL TERMINAL // TV &middot; MOVIES &middot; RADIO</div>
+  <div class="mil-clock" id="clock" aria-label="Current local time">00:00:00</div>
+  <div class="mil-clock-label">LOCAL TIME // 24H</div>
+</header>
+<div class="top-bar">
+  <div><span class="blinkdot"></span><span class="bright">SIGNAL ACTIVE</span> <span class="dim">&mdash; <span id="sec">TELEVISION</span></span></div>
+  <div class="dim">LIVE STREAMS &middot; ON-DEMAND ARCHIVE &middot; RADIO</div>
+</div>
+<div class="wrap">
+<main>
+  <div class="panel-head stage-head"><span class="bright"><span class="blinkdot"></span>FEED</span><span class="dim">VIDEO / AUDIO CHANNEL</span></div>
+  <div class="screen" id="screen">
+    <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+    <video id="v" controls controlsList="nofullscreen" autoplay playsinline></video>
+    <iframe id="f" title="Film player" allowfullscreen></iframe>
+    <div class="layers" aria-hidden="true"><i class="l-scan"></i><i class="l-vig"></i><i class="l-grain"></i><i class="l-vhs"></i><i class="l-flick"></i><i class="l-mask"></i></div>
+    <button id="next" type="button" hidden>Next episode &#9654;</button>
+  </div>
+  <div class="fxbar" id="fxbar" role="group" aria-label="Video overlays"></div>
+  <select id="eps" aria-label="Episodes" hidden></select>
+  <div class="deck" id="deck"><div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div><audio id="a" controls autoplay></audio></div>
+  <div id="now"></div>
+  <div id="subinfo" class="subinfo" aria-live="polite"></div>
+  <div class="tools" id="tools" hidden></div>
+  <small id="note"></small>
+</main>
+<aside>
+  <div class="panel-head"><span class="bright">CHANNEL INDEX</span><span class="dim">SELECT SOURCE</span></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-s="tv">TV</button>
+    <button role="tab" data-s="movies">Movies</button>
+    <button role="tab" data-s="series">Series</button>
+    <button role="tab" data-s="radio">Radio</button>
+    <button role="tab" data-s="favs">★ Favs</button>
+  </div>
+  <div class="ctl">
+    <select id="grp" aria-label="Category"></select>
+    <select id="pick" aria-label="Browse"></select>
+    <input id="q" type="search" aria-label="Search">
+    <button id="avail" type="button" aria-pressed="false" title="Quickly tests each stream and hides the ones that do not respond">Show only available</button>
+  </div>
+  <ul id="list"></ul>
+</aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const IPTV="https://iptv-org.github.io/iptv/";
+const RB=["https://de1.api.radio-browser.info","https://nl1.api.radio-browser.info","https://at1.api.radio-browser.info"];
+const FTV=Object.fromEntries(Object.entries({usa:"United States",canada:"Canada",uk:"United Kingdom",ireland:"Ireland",australia:"Australia",india:"India",japan:"Japan",china:"China",hong_kong:"Hong Kong",taiwan:"Taiwan",korea:"South Korea",denmark:"Denmark",finland:"Finland",iceland:"Iceland",norway:"Norway",sweden:"Sweden",estonia:"Estonia",latvia:"Latvia",lithuania:"Lithuania",belgium:"Belgium",netherlands:"Netherlands",luxembourg:"Luxembourg",germany:"Germany",austria:"Austria",switzerland:"Switzerland",poland:"Poland",czech_republic:"Czech Republic",slovakia:"Slovakia",hungary:"Hungary",romania:"Romania",moldova:"Moldova",bulgaria:"Bulgaria",france:"France",italy:"Italy",portugal:"Portugal",spain:"Spain",russia:"Russia",belarus:"Belarus",ukraine:"Ukraine",armenia:"Armenia",azerbaijan:"Azerbaijan",georgia:"Georgia",bosnia_and_herzegovina:"Bosnia and Herzegovina",croatia:"Croatia",montenegro:"Montenegro",north_macedonia:"North Macedonia",serbia:"Serbia",slovenia:"Slovenia",albania:"Albania",kosovo:"Kosovo",greece:"Greece",cyprus:"Cyprus",andorra:"Andorra",malta:"Malta",monaco:"Monaco",san_marino:"San Marino",iran:"Iran",iraq:"Iraq",israel:"Israel",qatar:"Qatar",turkey:"Türkiye",united_arab_emirates:"United Arab Emirates",argentina:"Argentina",costa_rica:"Costa Rica",dominican_republic:"Dominican Republic",mexico:"Mexico",paraguay:"Paraguay",peru:"Peru",venezuela:"Venezuela",brazil:"Brazil",trinidad:"Trinidad and Tobago",chad:"Chad",somalia:"Somalia",indonesia:"Indonesia",kenya:"Kenya"}).sort((a,b)=>a[1].localeCompare(b[1])));
+const COUNTRIES=Object.fromEntries(Object.entries({al:"Albania",ar:"Argentina",am:"Armenia",au:"Australia",at:"Austria",az:"Azerbaijan",be:"Belgium",ba:"Bosnia and Herzegovina",br:"Brazil",bg:"Bulgaria",ca:"Canada",cl:"Chile",cn:"China",co:"Colombia",hr:"Croatia",cy:"Cyprus",cz:"Czechia",dk:"Denmark",eg:"Egypt",ee:"Estonia",fi:"Finland",fr:"France",ge:"Georgia",de:"Germany",gr:"Greece",hk:"Hong Kong",hu:"Hungary",is:"Iceland",in:"India",id:"Indonesia",ie:"Ireland",il:"Israel",it:"Italy",jp:"Japan",jo:"Jordan",kz:"Kazakhstan",ke:"Kenya",kr:"South Korea",kw:"Kuwait",lv:"Latvia",lb:"Lebanon",lt:"Lithuania",lu:"Luxembourg",my:"Malaysia",mt:"Malta",mx:"Mexico",ma:"Morocco",nl:"Netherlands",nz:"New Zealand",ng:"Nigeria",no:"Norway",pk:"Pakistan",pe:"Peru",ph:"Philippines",pl:"Poland",pt:"Portugal",qa:"Qatar",ro:"Romania",ru:"Russia",sa:"Saudi Arabia",rs:"Serbia",sg:"Singapore",sk:"Slovakia",si:"Slovenia",za:"South Africa",es:"Spain",lk:"Sri Lanka",se:"Sweden",ch:"Switzerland",tw:"Taiwan",th:"Thailand",tn:"Tunisia",tr:"Türkiye",ua:"Ukraine",ae:"United Arab Emirates",gb:"United Kingdom",us:"United States",uy:"Uruguay",ve:"Venezuela",vn:"Vietnam",af:"Afghanistan",dz:"Algeria",ad:"Andorra",ao:"Angola",bh:"Bahrain",bd:"Bangladesh",by:"Belarus",bo:"Bolivia",bn:"Brunei",kh:"Cambodia",cm:"Cameroon",ci:"Côte d'Ivoire",cr:"Costa Rica",cu:"Cuba",do:"Dominican Republic",ec:"Ecuador",sv:"El Salvador",et:"Ethiopia",gh:"Ghana",gt:"Guatemala",hn:"Honduras",iq:"Iraq",ir:"Iran",jm:"Jamaica",xk:"Kosovo",kg:"Kyrgyzstan",la:"Laos",li:"Liechtenstein",ly:"Libya",mo:"Macao",mv:"Maldives",mc:"Monaco",md:"Moldova",mn:"Mongolia",me:"Montenegro",mm:"Myanmar",mz:"Mozambique",np:"Nepal",ni:"Nicaragua",mk:"North Macedonia",om:"Oman",ps:"Palestine",pa:"Panama",py:"Paraguay",pr:"Puerto Rico",rw:"Rwanda",sm:"San Marino",sn:"Senegal",so:"Somalia",sd:"Sudan",sy:"Syria",tj:"Tajikistan",tz:"Tanzania",tt:"Trinidad and Tobago",tm:"Turkmenistan",ug:"Uganda",uz:"Uzbekistan",ye:"Yemen",zw:"Zimbabwe"}).sort((a,b)=>a[1].localeCompare(b[1])));
+const TVCAT={animation:"Animation",auto:"Auto",business:"Business",classic:"Classic",comedy:"Comedy",cooking:"Cooking",culture:"Culture",documentary:"Documentary",education:"Education",entertainment:"Entertainment",family:"Family",general:"General",interactive:"Interactive",kids:"Kids",legislative:"Government and parliament",lifestyle:"Lifestyle",movies:"Movies",music:"Music",news:"News",outdoor:"Outdoor",public:"Public broadcasters",relax:"Relax",religious:"Religious",science:"Science",series:"Series",shop:"Shopping",sports:"Sports",travel:"Travel",weather:"Weather"};
+const LANGS=Object.fromEntries(Object.entries({eng:"English",spa:"Spanish",fra:"French",deu:"German",ita:"Italian",por:"Portuguese",nld:"Dutch",ell:"Greek",mlt:"Maltese",tur:"Turkish",rus:"Russian",ukr:"Ukrainian",pol:"Polish",ron:"Romanian",swe:"Swedish",nor:"Norwegian",dan:"Danish",fin:"Finnish",ara:"Arabic",heb:"Hebrew",fas:"Persian",hin:"Hindi",urd:"Urdu",ben:"Bengali",tam:"Tamil",tel:"Telugu",zho:"Chinese",jpn:"Japanese",kor:"Korean",vie:"Vietnamese",tha:"Thai",ind:"Indonesian",msa:"Malay",tgl:"Tagalog",swa:"Swahili",afr:"Afrikaans",ces:"Czech",hun:"Hungarian",bul:"Bulgarian",hrv:"Croatian",srp:"Serbian",bos:"Bosnian",slk:"Slovak",slv:"Slovenian",mkd:"Macedonian",sqi:"Albanian",lit:"Lithuanian",lav:"Latvian",est:"Estonian",kat:"Georgian",hye:"Armenian",aze:"Azerbaijani",kaz:"Kazakh",uzb:"Uzbek",pus:"Pashto",kur:"Kurdish",amh:"Amharic",som:"Somali",hau:"Hausa",mar:"Marathi",guj:"Gujarati",pan:"Punjabi",kan:"Kannada",mal:"Malayalam",sin:"Sinhala",nep:"Nepali",mya:"Burmese",khm:"Khmer",mon:"Mongolian",yue:"Cantonese",cat:"Catalan",eus:"Basque",glg:"Galician",isl:"Icelandic",gle:"Irish",cym:"Welsh"}).sort((a,b)=>a[1].localeCompare(b[1])));
+const F_GENRE={"feature_films":"All feature films","feature_films~subject:(western OR westerns)":"Westerns","feature_films~subject:(comedy)":"Comedies","feature_films~subject:(crime OR mystery OR detective)":"Crime and mystery","feature_films~subject:(adventure OR action)":"Adventure and action","feature_films~subject:(romance OR drama)":"Romance and drama","feature_films~subject:(musical)":"Musicals","feature_films~subject:(war)":"War films","feature_films~subject:(horror)":"Horror","feature_films~subject:(thriller OR suspense)":"Thrillers and suspense","feature_films~subject:(fantasy OR fairy)":"Fantasy and fairy tales","feature_films~subject:(serial OR serials)":"Film serials","feature_films~subject:(spy OR espionage)":"Spy films","feature_films~subject:(christmas OR holiday)":"Holiday films","feature_films~subject:(family OR children)":"Family films","feature_films~subject:(documentary)":"Feature documentaries"};
+const F_ERA={"film_noir":"Film noir","silent_films":"Silent films","silent_films~subject:(comedy)":"Silent comedies","SciFi_Horror":"Sci-fi and horror"};
+const F_TV={"classic_tv":"Classic TV series","classic_tv~subject:(comedy OR sitcom)":"Classic TV comedies","classic_tv~subject:(western)":"Classic TV westerns","classic_cartoons":"Classic cartoons"};
+const F_ARCH={"prelinger":"Vintage ads, educational and industrial films","movies~subject:(documentary)":"Documentaries","movies~subject:(newsreel OR newsreels)":"Newsreels","movies~subject:(trailer OR trailers)":"Movie trailers","fedflix":"US government films (FedFlix)","movies~subject:(world AND war AND ii)":"World War II footage","movies~subject:(cold AND war)":"Cold War films","movies~subject:(propaganda)":"Propaganda films","movies~subject:(educational OR classroom)":"Educational films","movies~subject:(travelogue OR travel)":"Travelogues","movies~subject:(commercial OR advertisement)":"Vintage commercials","movies~subject:(home AND movie)":"Home movies","movies~subject:(sports OR baseball OR football)":"Vintage sports","movies~subject:(safety OR driving)":"Safety and driver-ed films"};
+const F_ANIME={"classic_cartoons~subject:(anime OR japan OR japanese)":"Early Japanese animation","feature_films~subject:(anime OR japanimation OR animation)":"Animated features","feature_films~subject:(japan OR japanese)":"Japanese films","classic_cartoons~language:(Japanese)":"Japanese-language cartoons","classic_cartoons~subject:(anime)":"Classic anime shorts","movies~title:(momotaro)":"Momotaro (1940s wartime anime)","movies~(title:(kumo AND tulip) OR title:(spider AND tulip))":"The Spider and the Tulip (1943)","movies~title:(norakuro)":"Norakuro","movies~(creator:(ofuji) OR title:(ofuji))":"Noburo Ofuji","movies~title:(namakura AND gatana)":"Namakura Gatana (1917)"};
+const F_NASA={"apollo":"Apollo missions","space shuttle":"Space Shuttle","international space station":"International Space Station","mars":"Mars","moon":"The Moon","hubble":"Hubble and telescopes","rocket launch":"Rocket launches","earth observation":"Earth from space","artemis":"Artemis and SLS","james webb":"James Webb Space Telescope","sun":"The Sun","skylab":"Skylab","voyager":"Voyager","perseverance rover":"Perseverance and Curiosity rovers","spacewalk":"Spacewalks","astronaut training":"Astronaut training","aeronautics":"Aeronautics and X-planes","climate":"Climate and weather","jupiter":"Jupiter and Saturn"};
+const F_WIKI={"silent film":"Silent film clips","newsreel":"Newsreels","history":"Historical footage","documentary":"Documentaries","animation":"Animation and cartoons","nature":"Nature and wildlife","music":"Music and performance","science":"Science and technology","feature film":"Full-length films","trailer":"Trailers","early cinema":"Early cinema","world war":"World wars","moon landing":"Moon landing","aviation":"Aviation history","animals":"Animals","travel":"Travel and cities","dance":"Dance","lecture":"Lectures and talks"};
+const F_HOLMES={"(feature_films OR silent_films OR classic_tv OR film_noir)~title:(sherlock AND holmes)":"Sherlock Holmes (by title)","(feature_films OR silent_films OR classic_tv OR film_noir)~subject:(sherlock)":"Sherlock Holmes (by tag)"};
+const F_DECADE={"feature_films~year:[1920 TO 1929]":"1920s","feature_films~year:[1930 TO 1939]":"1930s","feature_films~year:[1940 TO 1949]":"1940s","feature_films~year:[1950 TO 1959]":"1950s","feature_films~year:[1960 TO 1969]":"1960s","silent_films~year:[1900 TO 1919]":"Silent era 1900-1919","classic_tv~year:[1950 TO 1959]":"TV of the 1950s","classic_tv~year:[1960 TO 1969]":"TV of the 1960s"};
+const F_SILENTP={"silent_films~(title:(chaplin) OR creator:(chaplin) OR subject:(chaplin))":"Charlie Chaplin (early shorts)","silent_films~(title:(keaton) OR creator:(keaton) OR subject:(keaton))":"Buster Keaton","silent_films~(title:(lloyd) OR creator:(lloyd) OR subject:(lloyd))":"Harold Lloyd","silent_films~(title:(melies) OR creator:(melies) OR subject:(melies))":"Georges M\u00e9li\u00e8s","silent_films~(subject:(expressionism) OR subject:(german))":"German expressionism","silent_films~subject:(horror)":"Silent horror","silent_films~subject:(western)":"Silent westerns","silent_films~(subject:(serial) OR title:(serial))":"Silent serials","movies~title:(laurel AND hardy)":"Laurel and Hardy","movies~title:(three AND stooges)":"The Three Stooges"};
+const F_CARTOON={"classic_cartoons~title:(superman)":"Superman (Fleischer)","classic_cartoons~title:(popeye)":"Popeye","classic_cartoons~title:(betty AND boop)":"Betty Boop","classic_cartoons~title:(felix)":"Felix the Cat","classic_cartoons~title:(terrytoon OR mighty AND mouse)":"Terrytoons","classic_cartoons~subject:(fleischer)":"Fleischer Studios","classic_cartoons~subject:(color OR technicolor)":"Colour cartoons","classic_cartoons~subject:(world AND war)":"Wartime cartoons"};
+const F_FAMOUS={"movies~title:(nosferatu)":"Nosferatu (1922)","movies~title:(caligari)":"The Cabinet of Dr. Caligari (1920)","movies~title:(trip AND moon)":"A Trip to the Moon (1902)","movies~title:(metropolis) AND year:[1925 TO 1930]":"Metropolis (1927)","movies~title:(phantom AND opera) AND year:[1925 TO 1930]":"The Phantom of the Opera (1925)","movies~title:(safety AND last)":"Safety Last! (1923)","movies~title:(night AND living AND dead)":"Night of the Living Dead (1968)","movies~title:(house AND haunted AND hill)":"House on Haunted Hill (1959)","movies~title:(carnival AND souls)":"Carnival of Souls (1962)","movies~title:(plan AND outer AND space)":"Plan 9 from Outer Space (1959)","movies~title:(little AND shop AND horrors)":"The Little Shop of Horrors (1960)","movies~title:(last AND man AND earth)":"The Last Man on Earth (1964)","movies~title:(detour)":"Detour (1945)","movies~title:(his AND girl AND friday)":"His Girl Friday (1940)","movies~title:(my AND man AND godfrey)":"My Man Godfrey (1936)","movies~title:(charade) AND year:[1963 TO 1964]":"Charade (1963)","movies~title:(scarlet AND street)":"Scarlet Street (1945)","movies~title:(hitch AND hiker)":"The Hitch-Hiker (1953)","movies~title:(gulliver AND travels) AND year:[1939 TO 1940]":"Gulliver\u2019s Travels (1939)","movies~title:(reefer AND madness)":"Reefer Madness (1936)","movies~title:(brain AND wouldn AND die)":"The Brain That Wouldn\u2019t Die (1962)","movies~title:(santa AND claus AND martians)":"Santa Claus Conquers the Martians (1964)"};
+const F_JPFILM={"feature_films~language:(Japanese)":"Japanese-language features","silent_films~(language:(Japanese) OR subject:(japan OR japanese))":"Japanese silent films","movies~subject:(samurai OR jidaigeki OR chanbara)":"Samurai films","movies~(subject:(kaiju) OR subject:(godzilla))":"Kaiju and monster films","SciFi_Horror~(subject:(japan OR japanese) OR language:(Japanese))":"Japanese sci-fi and horror","movies~(creator:(ozu) OR title:(ozu))":"Yasujiro Ozu","movies~(creator:(mizoguchi) OR title:(mizoguchi))":"Kenji Mizoguchi","movies~(creator:(kurosawa) OR title:(kurosawa) OR title:(sanshiro AND sugata))":"Akira Kurosawa (early work)"};
+const F_JPHIST={"movies~subject:(japan AND newsreel)":"Japan newsreels","movies~subject:(japan AND (travelogue OR travel))":"Japan travelogues","movies~subject:(japan AND world AND war)":"Japan in WWII footage","movies~subject:(japan AND occupation)":"Occupation of Japan","movies~subject:(japan AND history)":"Japanese history and culture","movies~(subject:(kabuki) OR subject:(noh) OR title:(kabuki))":"Kabuki and Noh","movies~subject:(tokyo)":"Tokyo","movies~subject:(okinawa)":"Okinawa","movies~subject:(hiroshima OR nagasaki)":"Hiroshima and Nagasaki archives","prelinger~subject:(japan)":"Vintage educational films about Japan"};
+const F_JPWM={"Japanese animation":"Japanese animation clips","early Japanese film":"Early Japanese film","Japan newsreel":"Japan newsreels","Japan 1930s film":"Japan 1920s-30s footage","Tokyo historic film":"Historic Tokyo","kabuki":"Kabuki","Noh theatre":"Noh theatre","Okinawa":"Okinawa","Japanese festival":"Festivals and traditions","Mount Fuji":"Mount Fuji"};
+const F_KRSERIES={"movies~(subject:(kdrama) OR subject:(k-drama) OR subject:(korean AND drama) OR title:(kdrama))":"K-drama and Korean drama","movies~(language:(Korean) OR language:(kor)) AND subject:(drama)":"Korean-language dramas","movies~(subject:(korean) AND (series OR television OR episode))":"Korean TV series","movies~(subject:(sageuk) OR subject:(joseon) OR subject:(korean AND historical))":"Historical dramas (sageuk)","movies~(subject:(korean AND (webdrama OR web)))":"Korean web dramas","movies~(subject:(korean AND (variety OR reality OR show)))":"Variety and reality shows","movies~(subject:(korean AND (sitcom OR comedy)))":"Sitcoms and comedy series","movies~(subject:(korean) AND documentary)":"Korean documentaries","classic_tv~(language:(Korean) OR subject:(korean))":"Classic Korean TV","classic_cartoons~(language:(Korean) OR subject:(korean))":"Korean cartoons","movies~(subject:(manhwa) OR subject:(korean AND animation))":"Korean animation and manhwa adaptations"};
+const F_KRMOVIE={"feature_films~(language:(Korean) OR language:(kor))":"Korean-language features","movies~(language:(Korean) OR language:(kor))":"All Korean-language films and shows","movies~(language:(Korean) OR language:(kor)) AND subject:(romance)":"Romance","movies~(language:(Korean) OR language:(kor)) AND subject:(thriller OR suspense)":"Thrillers","movies~(language:(Korean) OR language:(kor)) AND subject:(horror)":"Horror","movies~(language:(Korean) OR language:(kor)) AND subject:(action OR martial)":"Action and martial arts","movies~(language:(Korean) OR language:(kor)) AND subject:(comedy)":"Comedies","movies~(language:(Korean) OR language:(kor)) AND subject:(crime OR gangster)":"Crime films","movies~(language:(Korean) OR language:(kor)) AND subject:(war)":"War films","movies~(language:(Korean) OR language:(kor)) AND subject:(family OR children)":"Family films","movies~(language:(Korean) OR language:(kor)) AND year:[1950 TO 1969]":"1950s-60s (the golden age)","movies~(language:(Korean) OR language:(kor)) AND year:[1970 TO 1989]":"1970s-80s","movies~(language:(Korean) OR language:(kor)) AND year:[1990 TO 1999]":"1990s","movies~(language:(Korean) OR language:(kor)) AND year:[2000 TO 2012]":"2000s and early 2010s","silent_films~subject:(korea OR korean)":"Silent-era Korea","movies~subject:(korean AND (film OR cinema OR movie))":"Korean cinema (by subject)","movies~subject:(north AND korea)":"North Korean films","movies~subject:(kpop OR k-pop)":"K-pop videos and concerts"};
+const F_KRHIST={"movies~subject:(korea AND newsreel)":"Korea newsreels","movies~subject:(korean AND war)":"Korean War footage","fedflix~subject:(korea)":"US government films on Korea","movies~subject:(korea AND (travelogue OR travel))":"Korea travelogues","movies~subject:(korea AND history)":"Korean history and culture","movies~subject:(seoul)":"Seoul","movies~subject:(dmz OR demilitarized)":"The DMZ","prelinger~subject:(korea)":"Vintage educational films about Korea"};
+const F_KRWM={"Korean cinema":"Korean cinema","Korean drama":"Korean drama clips","K-pop":"K-pop","Korean independence movement":"Independence movement","Joseon":"Joseon history","Busan":"Busan","Korean food":"Korean food","Korean film":"Korean film clips","Korea newsreel":"Korea newsreels","Seoul historic film":"Historic Seoul","Korean War":"Korean War","Korean traditional dance":"Traditional dance","hanbok":"Hanbok and traditions","taekwondo":"Taekwondo","Korea 1950s film":"Korea 1950s footage"};
+const F_SERALL={"(classic_tv OR classic_cartoons)":"All classic TV and cartoon series","movies~(subject:(series) OR subject:(television) OR subject:(episodes) OR subject:(sitcom) OR subject:(tv AND show))":"Series and shows across the whole Archive","(classic_tv OR classic_cartoons OR movies OR SciFi_Horror)~title:(episode OR season OR series)":"Anything titled episode / season / series","(classic_tv OR classic_cartoons OR feature_films OR silent_films OR SciFi_Horror OR film_noir OR prelinger OR fedflix)~title:(episode OR season OR series)":"Episodes and series in the public-domain film collections","(feature_films OR silent_films OR movies)~(title:(chapter) AND subject:(serial OR serials))":"Serial chapters (search all)"};
+const F_SERBRIT={"(classic_tv OR movies)~(subject:(sitcom) AND (subject:(british) OR subject:(bbc) OR subject:(uk) OR subject:(england)))":"British sitcoms (search all)","(classic_tv OR movies)~(subject:(british) AND (subject:(comedy) OR subject:(television)))":"British TV comedy (search all)","(classic_tv OR movies)~title:(fawlty AND towers)":"Fawlty Towers","(classic_tv OR movies)~title:(dad AND army)":"Dad\u2019s Army","(classic_tv OR movies)~title:(only AND fools AND horses)":"Only Fools and Horses","(classic_tv OR movies)~title:(blackadder)":"Blackadder","(classic_tv OR movies)~title:(porridge)":"Porridge","(classic_tv OR movies)~title:(are AND you AND being AND served)":"Are You Being Served?","(classic_tv OR movies)~title:(steptoe AND son)":"Steptoe and Son","(classic_tv OR movies)~title:(yes AND minister OR prime AND minister)":"Yes Minister / Yes, Prime Minister","(classic_tv OR movies)~title:(open AND all AND hours)":"Open All Hours","(classic_tv OR movies)~title:(last AND summer AND wine)":"Last of the Summer Wine","(classic_tv OR movies OR opensource_movies)~(title:(allo) OR subject:(allo) OR description:(allo AND resistance) OR description:(allo AND crabtree))":"\u2019Allo \u2019Allo!","(classic_tv OR movies)~title:(keeping AND up AND appearances)":"Keeping Up Appearances","(classic_tv OR movies)~title:(hancock)":"Hancock\u2019s Half Hour","(classic_tv OR movies)~title:(good AND life)":"The Good Life","(classic_tv OR movies)~title:(rising AND damp)":"Rising Damp","(classic_tv OR movies)~title:(father AND ted)":"Father Ted","(classic_tv OR movies)~title:(one AND foot AND grave)":"One Foot in the Grave","(classic_tv OR movies)~title:(red AND dwarf)":"Red Dwarf","(classic_tv OR movies)~title:(flying AND circus)":"Monty Python\u2019s Flying Circus","(classic_tv OR movies)~title:(goodies)":"The Goodies","(classic_tv OR movies)~title:(on AND the AND buses)":"On the Buses","(classic_tv OR movies)~title:(till AND death AND us AND do AND part)":"Till Death Us Do Part","(classic_tv OR movies)~title:(mind AND your AND language)":"Mind Your Language","(classic_tv OR movies)~title:(bless AND this AND house)":"Bless This House","(classic_tv OR movies)~title:(the AND young AND ones)":"The Young Ones"};
+const F_SERJP={"classic_tv~(language:(Japanese) OR subject:(japan OR japanese))":"Japanese TV series","(classic_cartoons OR classic_tv OR movies)~(subject:(anime) AND (series OR episode OR television))":"Anime series","classic_cartoons~title:(astro AND boy)":"Astro Boy","classic_cartoons~title:(speed AND racer)":"Speed Racer","movies~(title:(ultraman) OR title:(ultra AND seven))":"Ultraman","movies~title:(kimba OR (jungle AND emperor))":"Kimba the White Lion"};
+const F_SERSERIAL={"feature_films~subject:(serial OR serials)":"Film serials","silent_films~(subject:(serial) OR title:(serial))":"Silent serials","movies~(title:(flash AND gordon) OR title:(buck AND rogers))":"Flash Gordon and Buck Rogers","movies~title:(perils AND pauline)":"The Perils of Pauline"};
+const SR=(col,rows)=>Object.fromEntries(rows.map(([n,q,c])=>[(c||col)+(q?"~"+q:""),n]));
+const C_TV="(classic_tv OR movies)",C_TOON="(classic_cartoons OR movies)";
+const F_SERWEST=SR(C_TV,[["The Lone Ranger","title:(lone AND ranger)"],["The Cisco Kid","title:(cisco AND kid)"],["Hopalong Cassidy","title:(hopalong AND cassidy)"],["The Roy Rogers Show","title:(roy AND rogers)"],["The Gene Autry Show","title:(gene AND autry)"],["Annie Oakley","title:(annie AND oakley)"],["Wild Bill Hickok","title:(wild AND bill AND hickok)"],["Kit Carson","title:(kit AND carson)"],["The Range Rider","title:(range AND rider)"],["Sergeant Preston of the Yukon","title:(sergeant AND preston)"],["Sky King","title:(sky AND king)"],["The Adventures of Robin Hood","title:(adventures AND robin AND hood)"]]);
+const F_SERSCIFI=SR(C_TV,[["Captain Video","title:(captain AND video)"],["Tom Corbett, Space Cadet","title:(tom AND corbett)"],["Space Patrol","title:(space AND patrol)"],["Rocky Jones, Space Ranger","title:(rocky AND jones)"],["Commando Cody","title:(commando AND cody)"],["Science Fiction Theatre","title:(science AND fiction AND theatre OR science AND fiction AND theater)"],["Tales of Tomorrow","title:(tales AND tomorrow)"],["Flash Gordon (1954 TV)","title:(flash AND gordon)"],["Johnny Jupiter","title:(johnny AND jupiter)"],["Atom Squad","title:(atom AND squad)"],["Lights Out","title:(lights AND out)"]]);
+const F_SERCOM=SR(C_TV,[["You Bet Your Life (Groucho Marx)","title:(you AND bet AND your AND life)"],["Burns and Allen","title:(burns AND allen)"],["My Little Margie","title:(little AND margie)"],["Amos \u2019n\u2019 Andy","title:(amos AND andy)"],["The Abbott and Costello Show","title:(abbott AND costello)"],["The Jack Benny Program","title:(jack AND benny)"],["Our Gang / Little Rascals","title:(our AND gang OR little AND rascals)"],["Texaco Star Theater / Milton Berle","title:(texaco AND star AND theater OR milton AND berle)"],["The Colgate Comedy Hour","title:(colgate AND comedy)"],["Ernie Kovacs","title:(kovacs)"],["Mister Peepers","title:(peepers)"],["I Married Joan","title:(married AND joan)"],["December Bride","title:(december AND bride)"]]);
+const F_SERCRIME=SR(C_TV,[["Dragnet","title:(dragnet)"],["Racket Squad","title:(racket AND squad)"],["Highway Patrol","title:(highway AND patrol)"],["Boston Blackie","title:(boston AND blackie)"],["Mr. District Attorney","title:(district AND attorney)"],["Man Against Crime","title:(man AND against AND crime)"],["Treasury Men in Action","title:(treasury AND men AND action)"],["The New Adventures of Charlie Chan","title:(charlie AND chan)"],["Martin Kane, Private Eye","title:(martin AND kane)"],["City Detective","title:(city AND detective)"],["Rocky King, Detective","title:(rocky AND king)"],["Public Defender","title:(public AND defender)"]]);
+const F_SERKIDS=SR(C_TV,[["Howdy Doody","title:(howdy AND doody)"],["Winky Dink and You","title:(winky AND dink)"],["Time for Beany","title:(time AND beany OR beany AND cecil)"],["Watch Mr. Wizard","title:(mr AND wizard)"],["Super Circus","title:(super AND circus)"],["Kukla, Fran and Ollie","title:(kukla)"],["Rootie Kazootie","title:(rootie AND kazootie)"],["The Pinky Lee Show","title:(pinky AND lee)"]]);
+const F_SERTOON2=SR(C_TOON,[["Looney Tunes / Merrie Melodies","(title:(looney AND tunes) OR title:(merrie AND melodies))"],["Casper the Friendly Ghost","title:(casper)"],["Little Lulu","title:(little AND lulu)"],["Herman and Katnip","title:(herman AND katnip)"],["Heckle and Jeckle","title:(heckle AND jeckle)"],["Mutt and Jeff","title:(mutt AND jeff)"],["Krazy Kat","title:(krazy AND kat)"],["Koko the Clown / Out of the Inkwell","(title:(koko) OR title:(inkwell))"],["Flip the Frog","title:(flip AND frog)"],["Aesop\u2019s Fables","title:(aesop AND fables)"],["Talkartoons","title:(talkartoons)"],["Screen Songs","title:(screen AND songs)"],["Color Classics","title:(color AND classics)"],["Noveltoons","title:(noveltoons)"],["Little Audrey","title:(little AND audrey)"],["Gandy Goose","title:(gandy AND goose)"],["Bosko","title:(bosko)"],["Tom Terrific","title:(tom AND terrific)"]]);
+const F_SERSILENT2=SR("(silent_films OR movies)",[["Fant\u00f4mas (Feuillade)","title:(fantomas)"],["Les Vampires (Feuillade)","title:(les AND vampires)"],["Judex","title:(judex)"],["The Hazards of Helen","title:(hazards AND helen)"],["The Exploits of Elaine","title:(exploits AND elaine)"],["The Adventures of Kathlyn","title:(adventures AND kathlyn)"],["What Happened to Mary","title:(what AND happened AND mary)"],["The Mysteries of Myra","title:(mysteries AND myra)"]]);
+const F_SERSOUND=SR("(feature_films OR movies)",[["The Phantom Empire (Gene Autry)","title:(phantom AND empire)"],["Undersea Kingdom","title:(undersea AND kingdom)"],["The Phantom Creeps","title:(phantom AND creeps)"],["Dick Tracy serials","title:(dick AND tracy)"],["Zorro\u2019s Fighting Legion","title:(zorro AND fighting AND legion)"],["Jungle Girl","title:(jungle AND girl)"],["Mandrake the Magician","title:(mandrake AND magician)"],["Don Winslow of the Navy","title:(don AND winslow)"],["Junior G-Men","title:(junior AND g AND men)"]]);
+const F_SERGOV=SR("movies",[["Why We Fight (Frank Capra)","title:(why AND we AND fight)"],["The Big Picture (US Army TV series)","(title:(big AND picture) AND (subject:(army) OR creator:(army)))","(movies OR fedflix)"],["Army-Navy Screen Magazine","title:(army AND navy AND screen AND magazine)"],["Private Snafu training cartoons","title:(snafu)","(movies OR classic_cartoons)"],["Universal Newsreel","title:(universal AND newsreel)"],["Coronet instructional films","(creator:(coronet) OR subject:(coronet))","(prelinger OR movies)"],["Jam Handy films","(creator:(handy) OR subject:(jam AND handy))","(prelinger OR movies)"],["US Navy training films","subject:(navy AND training)"],["US government film series (FedFlix)","","fedflix"]]);
+const F_SERNASA={"this week at nasa":"This Week @NASA","nasa explorers":"NASA Explorers","nasa edge":"NASA Edge","nasa eclips":"NASA eClips","space station live":"Space Station Live","earth right now":"Earth Right Now","nasa science live":"NASA Science Live","ask an astronaut":"Ask an Astronaut","nasa connect":"NASA Connect"};
+const F_SERWM={"silent film serial":"Silent serials","newsreel":"Newsreel series","animated series":"Animated series","documentary series":"Documentary series","educational series":"Educational series","lecture series":"Lecture series"};
+const F_SERGENRE={"classic_tv~subject:(drama)":"Drama","classic_tv~subject:(adventure)":"Adventure","classic_tv~subject:(science AND fiction OR scifi)":"Science fiction","classic_tv~subject:(detective OR mystery OR crime)":"Detective and mystery","classic_tv~subject:(children OR kids)":"Children\u2019s shows","classic_tv~subject:(variety)":"Variety shows","classic_tv~subject:(game AND show OR quiz)":"Game and quiz shows","classic_tv~subject:(talk OR interview)":"Talk and interview shows","classic_tv~subject:(anthology)":"Anthology series","classic_tv~subject:(documentary)":"Documentary series","classic_tv~subject:(war OR military)":"War and military","classic_tv~subject:(religious OR religion)":"Religious programmes"};
+const F_SERDEC={"classic_tv~year:[1940 TO 1949]":"TV of the 1940s","classic_tv~year:[1950 TO 1959]":"TV of the 1950s","classic_tv~year:[1960 TO 1969]":"TV of the 1960s","classic_cartoons~year:[1920 TO 1929]":"Cartoons of the 1920s","classic_cartoons~year:[1930 TO 1939]":"Cartoons of the 1930s","classic_cartoons~year:[1940 TO 1949]":"Cartoons of the 1940s","classic_cartoons~year:[1950 TO 1959]":"Cartoons of the 1950s"};
+const KOREAN=/korea|k-?drama|k-?pop|kocowa|kbs|mbc|sbs|tvn|jtbc|ocn|arirang|chosun|viki|\bena\b|channel a/i;
+const ANIME=/anime|animax|ani[- ]?one|ani[- ]?mi|muse|toei|tokyo|japan|nippon|otaku|kawaii|manga|shonen/i;
+const MOVCAT={movies:"Movie channels",series:"Series channels",classic:"Classic channels",comedy:"Comedy channels",animation:"Animation channels"};
+const GENRES={anime:"Anime music",jpop:"J-pop",jrock:"J-rock",japanese:"Japanese",kpop:"K-pop",korean:"Korean",jazz:"Jazz",classical:"Classical",rock:"Rock",pop:"Pop",news:"News",talk:"Talk",electronic:"Electronic",hiphop:"Hip hop",country:"Country",reggae:"Reggae",latin:"Latin",blues:"Blues",ambient:"Ambient",oldies:"Oldies",lofi:"Lo-fi"};
+const REGIONS={afr:"Africa",amer:"Americas",apac:"Asia-Pacific",arab:"Arab world",asean:"ASEAN",asia:"Asia",balkan:"Balkans",benelux:"Benelux",carib:"Caribbean",cee:"Central and Eastern Europe",cis:"CIS (ex-Soviet states)",eur:"Europe",hispam:"Hispanic America",mena:"Middle East and North Africa",nam:"North America"};
+const G=(o,p)=>Object.entries(o).map(([k,n])=>[p+k,n]);
+const SECTIONS={
+  tv:{title:"Television",search:"Filter channels",note:"Live channels come from the open-source iptv-org and Free-TV projects: browse by region, country, category or language, or load your own M3U link. Some may be offline or blocked in your region.",
+      groups:[["Worldwide and regions",[["iptv:index","Everything (very large list)"],...G(REGIONS,"iptv:regions/")]],["By country",G({int:"International channels",...COUNTRIES},"iptv:countries/")],["By category",G(TVCAT,"iptv:categories/")],["By language",G(LANGS,"iptv:languages/")],["Free-TV (officially free channels)",G({all:"All countries (worldwide)",...FTV},"ftv:")],["Movie, series & anime channels",[...G(MOVCAT,"iptv:categories/"),["iptvf:categories/animation~anime","Anime channels"]]],["Japanese TV",[["iptv:countries/jp","Japanese channels"],["iptv:languages/jpn","Japanese-language channels"],["ftv:japan","Free-TV: Japan"],["iptvf:categories/animation~anime","Anime channels"]]],["Korean TV & K-drama",[["iptvf:categories/series~kdrama","K-drama channels worldwide"],["iptvf:categories/movies~kdrama","Korean movie channels worldwide"],["iptvf:countries/kr~kmovie","Korean movie channels (South Korea)"],["iptvf:countries/kr~kvar","Korean entertainment and variety channels"],["iptvf:countries/kr~kdrama","Korean drama and entertainment channels"],["iptv:countries/kr","All Korean channels"],["iptv:languages/kor","Korean-language channels"],["ftv:korea","Free-TV: South Korea"]]],["Your own playlist",[["custom:url","Load an M3U / M3U8 link\u2026"]]]]},
+  movies:{title:"Movies & shows",search:"Search films and shows",note:"On-demand titles come from the Internet Archive, NASA (generally public domain) and Wikimedia Commons (public domain or freely licensed). Subtitles load automatically when a title has them; use the player\u2019s CC button to switch. Rights vary by title and country, so check before reusing anything. Modern K-dramas are copyrighted: the live K-drama channels on the Television tab are the legal free way to watch them, while the Korean archive searches are mostly older films, footage and community uploads.",
+      groups:[["Famous public-domain titles",G(F_FAMOUS,"ia:")],["Films by genre",G(F_GENRE,"ia:")],["Films by decade",G(F_DECADE,"ia:")],["Noir, silent and sci-fi",G(F_ERA,"ia:")],["Silent-era stars and pioneers",G(F_SILENTP,"ia:")],["Anime and Japanese animation",G(F_ANIME,"ia:")],["Japanese cinema",G(F_JPFILM,"ia:")],["Japan on film (history and footage)",[...G(F_JPHIST,"ia:"),...G(F_JPWM,"wm:")]],["Korean movies (archive)",G(F_KRMOVIE,"ia:")],["Korea on film (history and footage)",[...G(F_KRHIST,"ia:"),...G(F_KRWM,"wm:")]],["Archive finds",G(F_ARCH,"ia:")],["Space and science (NASA)",G(F_NASA,"nasa:")],["Wikimedia Commons (free videos)",G(F_WIKI,"wm:")]]},
+  series:{title:"Series",search:"Search series by name",note:"Series are listed here on their own, apart from the film sources on the Movies tab. Pick a list, or choose a search-everything list to look for a series by name across the whole Internet Archive. Episodes of a series open as a dropdown under the player. Most of these are older, public-domain or community-uploaded shows; modern K-dramas are copyrighted, and the live channels on the TV tab are the legal free way to watch them. Copyright status of older shows varies by episode and country, so check before reusing anything.",
+      groups:[["Search all series",G(F_SERALL,"ia:")],["Classic TV series",G(F_TV,"ia:")],["Classic cartoon series",G(F_CARTOON,"ia:")],["Sherlock Holmes (public domain)",G(F_HOLMES,"ia:")],["British sitcoms",G(F_SERBRIT,"ia:")],["Film and silent serials",G(F_SERSERIAL,"ia:")],["Japanese series and anime",G(F_SERJP,"ia:")],["Classic TV westerns and adventure",G(F_SERWEST,"ia:")],["Early TV science fiction",G(F_SERSCIFI,"ia:")],["Classic TV comedy and variety",G(F_SERCOM,"ia:")],["Classic TV crime and detective",G(F_SERCRIME,"ia:")],["Children\u2019s TV",G(F_SERKIDS,"ia:")],["More classic cartoon series",G(F_SERTOON2,"ia:")],["Silent-era serials",G(F_SERSILENT2,"ia:")],["Sound-era serials",G(F_SERSOUND,"ia:")],["Government and educational series",G(F_SERGOV,"ia:")],["Classic TV by genre",G(F_SERGENRE,"ia:")],["Browse by decade",G(F_SERDEC,"ia:")],["NASA video series",G(F_SERNASA,"nasa:")],["Wikimedia Commons series",G(F_SERWM,"wm:")],["Korean series and K-drama (archive)",G(F_KRSERIES,"ia:")]]},
+  favs:{title:"Favourites",search:"Filter favourites",note:"Favourites are saved in this browser. Tap the star next to any channel, station or title to add or remove it.",
+      groups:[["Show",[["fav:all","All favourites"],["fav:tv","Television"],["fav:movies","Movies & shows"],["fav:series","Series"],["fav:radio","Radio"]]]]},
+  radio:{title:"Radio",search:"Search stations",note:"Stations come from Radio Browser, a community-run open-source directory. Only HTTPS streams are listed.",
+      groups:[["By country",G(COUNTRIES,"rb:country/")],["By genre",G(GENRES,"rb:tag/")]]}
+};
+const CATS={
+  tv:[["Regions & worldwide",["Worldwide and regions"]],["By country",["By country"]],["By category",["By category"]],["By language",["By language"]],["Movie, series & anime",["Movie, series & anime channels"]],["Japanese TV",["Japanese TV"]],["Korean TV & K-drama",["Korean TV & K-drama"]],["Free-TV (officially free)",["Free-TV (officially free channels)"]],["Your own playlist",["Your own playlist"]]],
+  movies:[["Featured",["Famous public-domain titles"]],["Genres",["Films by genre"]],["Decades",["Films by decade"]],["Silent & noir",["Noir, silent and sci-fi","Silent-era stars and pioneers"]],["Archive finds",["Archive finds"]],["Japan",["Anime and Japanese animation","Japanese cinema","Japan on film (history and footage)"]],["Korea",["Korean movies (archive)","Korea on film (history and footage)"]],["Space & science (NASA)",["Space and science (NASA)"]],["Wikimedia Commons",["Wikimedia Commons (free videos)"]]],
+  series:[["Search all series",["Search all series"]],["Classic TV",["Classic TV series"]],["TV westerns",["Classic TV westerns and adventure"]],["TV sci-fi",["Early TV science fiction"]],["TV comedy",["Classic TV comedy and variety"]],["TV crime",["Classic TV crime and detective"]],["Kids",["Children\u2019s TV"]],["Genres",["Classic TV by genre"]],["Decades",["Browse by decade"]],["Cartoons",["Classic cartoon series","More classic cartoon series"]],["Sherlock Holmes",["Sherlock Holmes (public domain)"]],["British sitcoms",["British sitcoms"]],["Serials",["Film and silent serials","Silent-era serials","Sound-era serials"]],["Government & educational",["Government and educational series"]],["NASA series",["NASA video series"]],["Wikimedia Commons",["Wikimedia Commons series"]],["Japan",["Japanese series and anime"]],["Korea",["Korean series and K-drama (archive)"]]],
+  radio:[["By country",["By country"]],["By genre",["By genre"]]],
+  favs:[["Show",["Show"]]]
+};
+let lastGrp=0,lastPick=null,section="tv",channels=[],hls,req=0,timer;
+
+const isServer=()=>/^(ia|rb|nasa|wm):/.test($("pick").value);
+function show(w){$("v").style.display=w==="v"?"":"none";$("f").style.display=w==="f"?"block":"none";$("screen").style.display=w==="a"?"none":"";$("fxbar").style.display=w==="a"?"none":"";$("deck").style.display=w==="a"?"block":"none"}
+function stop(){
+  if(hls){hls.destroy();hls=null}
+  for(const el of [$("v"),$("a")]){el.pause();el.removeAttribute("src");el.load()}
+  clearSubs($("v"));$("f").src="about:blank";$("eps").hidden=true;$("v").onended=null;$("v").ontimeupdate=null;$("next").hidden=true;$("tools").hidden=true;
+  $("v").ondurationchange=null;$("a").ondurationchange=null;setLiveUI($("v"),false);setLiveUI($("a"),false);
+  show(section==="radio"?"a":"v");
+  $("now").textContent="Pick something from the list.";
+}
+function setSection(s){
+  section=s;const S=SECTIONS[s];
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.s===s));
+  $("sec").textContent=S.title.toUpperCase();$("note").textContent=S.note;
+  $("q").placeholder=S.search;$("q").value="";
+  S.cats=(CATS[s]||S.groups.map(g=>[g[0],[g[0]]])).map(([cl,gl])=>[cl,gl.map(l=>S.groups.find(g=>g[0]===l)).filter(Boolean)]).filter(c=>c[1].length);
+  const used=new Set(S.cats.flatMap(c=>c[1].map(g=>g[0])));
+  const rest=S.groups.filter(g=>!used.has(g[0]));if(rest.length)S.cats.push(["More",rest]);
+  $("grp").innerHTML=S.cats.map(([l],i)=>`<option value="${i}">${l}</option>`).join("");
+  $("grp").hidden=S.cats.length<2;
+  fillPick(0);lastGrp=0;lastPick=$("pick").value;stop();load();
+}
+const probeCache=new Map(),m3uCache=new Map();
+function applyFlag(rows,flag){
+  if(flag==="anime")return rows.filter(c=>ANIME.test(c.name));
+  if(flag==="kdrama")return rows.filter(c=>KOREAN.test(c.name));
+  if(flag==="kmovie")return rows.filter(c=>/movie|cinema|film|ocn|screen|catch/i.test(c.name));
+  if(flag==="kvar")return rows.filter(c=>/variety|ent|tvn|jtbc|sbs|mbc|kbs|ena|chosun|channel a|drama/i.test(c.name));
+  return rows;
+}
+async function countOf(val){
+  if(probeCache.has(val))return probeCache.get(val);
+  const i=val.indexOf(":"),src=val.slice(0,i),key=val.slice(i+1);
+  let n=null;
+  try{
+    if(src==="ia"){
+      const [col,extra]=key.split("~");
+      const query=`collection:${col} AND mediatype:movies`+(extra?` AND ${extra}`:"");
+      const r=await fetch(`https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&fl[]=identifier&rows=0&output=json`);
+      if(r.ok)n=(await r.json()).response.numFound;
+    }else if(src==="nasa"){
+      const r=await fetch("https://images-api.nasa.gov/search?media_type=video&page_size=1&q="+encodeURIComponent(key));
+      if(r.ok)n=(await r.json()).collection.metadata.total_hits;
+    }else if(src==="wm"){
+      const r=await fetch("https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&list=search&srnamespace=6&srlimit=1&srinfo=totalhits&srprop=&srsearch="+encodeURIComponent("filetype:video "+key));
+      if(r.ok)n=((await r.json()).query.searchinfo||{}).totalhits;
+    }else if(src==="iptvf"&&key.includes("~")){
+      const [path,flag]=key.split("~");
+      let t=m3uCache.get(path);
+      if(!t){const r=await fetch(IPTV+path+".m3u");if(r.ok){t=await r.text();m3uCache.set(path,t)}}
+      if(t)n=applyFlag(parseM3U(t),flag).length;
+    }
+  }catch(e){}
+  if(typeof n==="number")probeCache.set(val,n);else n=null;
+  return n;
+}
+let pruneTok=0;
+function dropOption(o){
+  const sel=$("pick"),was=sel.value===o.value,g=o.parentNode;
+  o.remove();
+  if(g&&g.tagName==="OPTGROUP"&&!g.querySelector("option"))g.remove();
+  if(was&&sel.options.length){sel.selectedIndex=0;lastPick=sel.value;$("q").value="";load()}
+}
+function dropCategory(){
+  const g=$("grp"),i=g.selectedIndex;
+  if(i<0||$("pick").options.length)return;
+  SECTIONS[section].cats.splice(i,1);g.options[i].remove();
+  if(!g.options.length){$("list").innerHTML='<li class="msg">Nothing found.</li>';return}
+  g.selectedIndex=Math.min(i,g.options.length-1);
+  g.hidden=g.options.length<2;
+  fillPick(g.selectedIndex);lastGrp=g.selectedIndex;lastPick=$("pick").value;$("q").value="";load();
+}
+async function pruneList(){
+  const tok=++pruneTok,sel=$("pick");
+  const opts=[...sel.options].filter(o=>/^(ia|nasa|wm):/.test(o.value)||(/^iptvf:/.test(o.value)&&o.value.includes("~")));
+  let idx=0;
+  const worker=async()=>{
+    while(idx<opts.length){
+      const o=opts[idx++],n=await countOf(o.value);
+      if(tok!==pruneTok)return;
+      if(n===0)dropOption(o);
+    }
+  };
+  await Promise.all(Array.from({length:4},worker));
+  if(tok===pruneTok)dropCategory();
+}
+function fillPick(i){
+  const gs=SECTIONS[section].cats[i][1],opt=([v,n])=>`<option value="${v}">${n}</option>`;
+  $("pick").innerHTML=gs.length===1?gs[0][1].map(opt).join(""):gs.map(([l,items])=>`<optgroup label="${l}">${items.map(opt).join("")}</optgroup>`).join("");
+  pruneList();
+}
+function parseM3U(txt){
+  const out=[],L=txt.split(/\r?\n/);
+  for(let i=0;i<L.length;i++){
+    if(!L[i].startsWith("#EXTINF"))continue;
+    const q=L[i].lastIndexOf('",'),name=(q>=0?L[i].slice(q+2):L[i].split(",").slice(1).join(",")).trim();
+    let j=i+1,ref,ua;
+    while(j<L.length&&(L[j].startsWith("#")||!L[j].trim())){
+      let m;
+      if(m=L[j].match(/^#EXTVLCOPT:http-referrer=(.+)/i))ref=m[1].trim();
+      if(m=L[j].match(/^#EXTVLCOPT:http-user-agent=(.+)/i))ua=m[1].trim();
+      j++;
+    }
+    const url=(L[j]||"").trim();
+    if(/^https?:/.test(url)&&!/(youtube\.com|youtu\.be)\//i.test(url))out.push({name,url,ref,ua});
+  }
+  return out;
+}
+async function rb(path){for(const h of RB){try{const r=await fetch(h+path);if(r.ok)return await r.json()}catch(e){}}throw new Error("radio")}
+async function load(){
+  const my=++req,val=$("pick").value,i=val.indexOf(":"),src=val.slice(0,i),key=val.slice(i+1),q=$("q").value.trim();
+  $("list").innerHTML='<li class="msg">Loading…</li>';
+  try{
+    let rows;
+    if(src==="fav"){rows=favList.filter(f=>key==="all"||f.sec===key).map(f=>({...f}))}else if(src==="rb"){
+      const [kind,v]=key.split("/");
+      const sel=kind==="country"?"countrycode="+v.toUpperCase():"tagExact=true&tag="+encodeURIComponent(v);
+      const d=await rb("/json/stations/search?hidebroken=true&is_https=true&order=clickcount&reverse=true&limit=80&"+sel+(q?"&name="+encodeURIComponent(q):""));
+      const seen=new Set();
+      rows=d.map(x=>({name:(x.name||"").trim(),url:x.url_resolved||x.url,radio:true})).filter(c=>c.name&&c.url&&!seen.has(c.name.toLowerCase())&&seen.add(c.name.toLowerCase()));
+    }else if(src==="ia"){
+      const qq=q.replace(/["\\()]/g,"");
+      const [col,extra]=key.split("~");
+      const query=`collection:${col} AND mediatype:movies`+(extra?` AND ${extra}`:"")+(qq?` AND title:(${qq})`:"");
+      const r=await fetch(`https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&fl[]=identifier&fl[]=title&fl[]=year&sort[]=downloads+desc&rows=60&output=json`);
+      if(!r.ok)throw new Error(r.status);
+      const d=await r.json();
+      rows=d.response.docs.map(x=>({name:String(x.title)+(x.year?` (${x.year})`:""),id:x.identifier}));
+    }else if(src==="nasa"){
+      const r=await fetch("https://images-api.nasa.gov/search?media_type=video&page_size=60&q="+encodeURIComponent((key+" "+q).trim()));
+      if(!r.ok)throw new Error(r.status);
+      const d=await r.json();
+      rows=d.collection.items.filter(x=>x.href&&x.data&&x.data[0]).map(x=>({name:x.data[0].title+(x.data[0].date_created?` (${x.data[0].date_created.slice(0,4)})`:""),url:x.href,nasa:true}));
+    }else if(src==="wm"){
+      const r=await fetch("https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=50&prop=imageinfo&iiprop=url%7Cmime&gsrsearch="+encodeURIComponent("filetype:video "+(key+" "+q).trim()));
+      if(!r.ok)throw new Error(r.status);
+      const pages=Object.values(((await r.json()).query||{}).pages||{}).sort((a,b)=>a.index-b.index);
+      rows=pages.filter(p=>p.imageinfo&&/^(video|application\/ogg)/.test(p.imageinfo[0].mime)).map(p=>({name:p.title.replace(/^File:/,"").replace(/\.[^.]+$/,"").replace(/_/g," "),url:p.imageinfo[0].url,direct:true}));
+    }else if(src==="custom"){
+      let u="";try{u=localStorage.getItem("freetv:custom")||""}catch(e){}
+      if(!/^https?:\/\//i.test(u))throw new Error("no url");
+      const r=await fetch(u);
+      if(!r.ok)throw new Error(r.status);
+      rows=parseM3U(await r.text());
+    }else if(src==="ftv"){
+      const r=await fetch("https://raw.githubusercontent.com/Free-TV/IPTV/master/"+(key==="all"?"playlist.m3u8":"playlists/playlist_"+key+".m3u8"));
+      if(!r.ok)throw new Error(r.status);
+      rows=parseM3U(await r.text());
+    }else{
+      const [path,flag]=key.split("~");
+      const r=await fetch(IPTV+path+".m3u");
+      if(!r.ok)throw new Error(r.status);
+      rows=parseM3U(await r.text());
+      if(flag==="anime")rows=rows.filter(c=>ANIME.test(c.name));else if(flag==="kdrama")rows=rows.filter(c=>KOREAN.test(c.name));else if(flag==="kmovie")rows=rows.filter(c=>/movie|cinema|film|ocn|screen|catch/i.test(c.name));else if(flag==="kvar")rows=rows.filter(c=>/variety|ent|tvn|jtbc|sbs|mbc|kbs|ena|chosun|channel a|drama/i.test(c.name));
+    }
+    if(my!==req)return;
+    channels=rows;chk++;checking=false;render();label();if(onlyAvail)checkAll();
+  }catch(e){
+    if(my===req)$("list").innerHTML=src==="custom"?'<li class="msg">Could not load that playlist. The link must use https and allow cross-site requests (CORS), and it must be an M3U / M3U8 list.</li>':'<li class="msg">Could not load this list. Check your connection and try again.</li>';
+  }
+}
+let current=null,onlyAvail=false,checking=false,chk=0,rt;
+const status=new Map();
+let favList=[];
+try{favList=JSON.parse(localStorage.getItem("freetv:favs")||"[]")}catch(e){}
+const saveFavs=()=>{try{localStorage.setItem("freetv:favs",JSON.stringify(favList))}catch(e){}};
+const keyOf=c=>c.id?"ia:"+c.id:c.url;
+const isFav=c=>favList.some(f=>keyOf(f)===keyOf(c));
+function toggleFav(c){
+  const k=keyOf(c),i=favList.findIndex(f=>keyOf(f)===k);
+  if(i>=0)favList.splice(i,1);
+  else{const {name,url,id,radio,direct,nasa,ref,ua}=c;favList.push({name,url,id,radio,direct,nasa,ref,ua,sec:c.sec||section})}
+  saveFavs();
+}
+function paintStar(st,c){
+  const f=isFav(c);
+  st.textContent=f?"★":"☆";st.setAttribute("aria-pressed",f);
+  st.setAttribute("aria-label",(f?"Remove from favourites: ":"Add to favourites: ")+c.name);
+}
+const availCount=()=>channels.filter(c=>c.id||status.get(c.url)===true).length;
+function label(done=0,total=0){
+  const b=$("avail");b.setAttribute("aria-pressed",onlyAvail);
+  b.textContent=!onlyAvail?"Show only available":checking?`Checking sources ${done}/${total}…`:`Available only: ${availCount()} of ${channels.length}`;
+}
+function render(){
+  const f=isServer()?"":$("q").value.toLowerCase();
+  let rows=channels.filter(c=>c.name.toLowerCase().includes(f));
+  if(onlyAvail)rows=rows.filter(c=>c.id||status.get(c.url)===true);
+  const ul=$("list"),top=ul.scrollTop;
+  ul.innerHTML=rows.length?"":`<li class="msg">${onlyAvail?(checking?"Checking sources…":"No available sources found."):(section==="favs"?"No favourites here yet. Tap the star next to anything to save it.":"Nothing found.")}</li>`;
+  rows.forEach(c=>{
+    const li=document.createElement("li"),b=document.createElement("button"),st=document.createElement("button");
+    if(current&&keyOf(c)===keyOf(current))li.classList.add("on");
+    b.className="main";b.textContent=c.name;
+    st.className="star";st.type="button";paintStar(st,c);
+    st.onclick=e=>{e.stopPropagation();toggleFav(c);if(section==="favs")load();else paintStar(st,c)};
+    b.onclick=()=>{play(c);document.querySelectorAll("li.on").forEach(x=>x.classList.remove("on"));li.classList.add("on")};
+    li.appendChild(b);li.appendChild(st);ul.appendChild(li);
+  });
+  ul.scrollTop=top;
+}
+async function probe(c){
+  if(status.has(c.url))return status.get(c.url);
+  let ok=false;
+  const attempt=async opts=>{
+    const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),7000);
+    try{const r=await fetch(c.url,{...opts,signal:ctl.signal,cache:"no-store"});return {ok:r.ok,err:false}}
+    catch(e){return {ok:false,err:!ctl.signal.aborted}}
+    finally{clearTimeout(t);ctl.abort()}
+  };
+  const r=await attempt({});
+  ok=r.ok;
+  if(!r.ok&&r.err&&c.radio)ok=(await attempt({mode:"no-cors"})).ok;
+  status.set(c.url,ok);return ok;
+}
+function schedule(){clearTimeout(rt);rt=setTimeout(render,250)}
+async function checkAll(){
+  const my=++chk,todo=channels.filter(c=>!c.id&&!status.has(c.url)),total=todo.length;
+  let done=0,i=0;checking=total>0;label(0,total);
+  const worker=async()=>{while(i<todo.length&&my===chk){const c=todo[i++];await probe(c);if(my!==chk)return;done++;label(done,total);schedule()}};
+  await Promise.all(Array.from({length:8},worker));
+  if(my===chk){checking=false;label(done,total);render()}
+}
+function explain(d){
+  const code=d.response&&d.response.code;
+  if(code===401||code===403||code===451)return `the server refused the request (HTTP ${code}). This is usually a region, IP or login restriction, or the stream needs headers that browsers cannot send.`;
+  if(code===404||code===410)return `the stream address no longer exists (HTTP ${code}).`;
+  if(code>=500)return `the stream's server is having problems (HTTP ${code}).`;
+  if(d.type==="networkError"||/manifestLoad/.test(d.details||""))return "the browser could not reach the stream. The server may block web players (CORS), block your network or region, or be offline.";
+  return "playback failed ("+(d.details||"unknown error")+").";
+}
+function showTools(c,url){
+  const box=$("tools");box.innerHTML="";box.hidden=false;
+  const add=(label,fn)=>{const b=document.createElement("button");b.type="button";b.textContent=label;b.onclick=()=>fn(b);box.appendChild(b)};
+  const copy=(text,b)=>{
+    const done=()=>{const o=b.textContent;b.textContent="Copied!";setTimeout(()=>b.textContent=o,1500)};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,()=>prompt("Copy this:",text));
+    else prompt("Copy this:",text);
+  };
+  add("Retry",()=>play(c));
+  add("Copy stream link",b=>copy(url,b));
+  add("Open in new tab",()=>window.open(url,"_blank","noopener"));
+  if(c.ref||c.ua){
+    const cmd="vlc"+(c.ref?` --http-referrer="${c.ref}"`:"")+(c.ua?` --http-user-agent="${c.ua}"`:"")+` "${url}"`;
+    add("Copy VLC command",b=>copy(cmd,b));
+  }
+}
+const LANGMAP={en:"en",eng:"en",english:"en",ko:"ko",kor:"ko",korean:"ko",ja:"ja",jpn:"ja",jap:"ja",japanese:"ja",es:"es",spa:"es",spanish:"es",fr:"fr",fra:"fr",fre:"fr",french:"fr",de:"de",deu:"de",ger:"de",german:"de",it:"it",ita:"it",italian:"it",pt:"pt",por:"pt",portuguese:"pt",zh:"zh",zho:"zh",chi:"zh",chinese:"zh",ru:"ru",rus:"ru",russian:"ru",ar:"ar",ara:"ar",arabic:"ar",hi:"hi",hin:"hi",hindi:"hi",tr:"tr",tur:"tr",turkish:"tr",nl:"nl",nld:"nl",dut:"nl",dutch:"nl",pl:"pl",pol:"pl",polish:"pl",sv:"sv",swe:"sv",swedish:"sv"};
+const langName=c=>{try{return new Intl.DisplayNames(["en"],{type:"language"}).of(c)||c}catch(e){return c.toUpperCase()}};
+function langOf(name){const base=name.replace(/^.*\//,"").replace(/\.[^.]+$/,"");for(const t of base.toLowerCase().split(/[^a-z]+/).reverse())if(LANGMAP[t])return LANGMAP[t];return""}
+const subItem=(url,name)=>{const lang=langOf(name);return{url,lang,label:lang?langName(lang):"Subtitles"}};
+const toVtt=t=>{t=t.replace(/^\uFEFF/,"").replace(/\r/g,"");return/^WEBVTT/.test(t)?t:"WEBVTT\n\n"+t.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g,"$1.$2")};
+let subTok=0;
+function clearSubs(v){subTok++;v.querySelectorAll("track").forEach(t=>{if(t.dataset.blob)URL.revokeObjectURL(t.src);t.remove()});$("subinfo").textContent=""}
+async function attachSubs(v,list){
+  clearSubs(v);const tok=subTok;
+  if(!list||!list.length)return;
+  const got=[];
+  await Promise.all(list.slice(0,12).map(async s=>{try{let text=s.text;if(text==null){const r=await fetch(s.url);if(!r.ok)return;text=await r.text()}if(text&&text.trim())got.push({lang:s.lang,label:s.label,text})}catch(e){}}));
+  if(tok!==subTok||!got.length)return;
+  got.sort((a,b)=>a.label.localeCompare(b.label));
+  const count={};got.forEach(g=>{count[g.label]=(count[g.label]||0)+1;if(count[g.label]>1)g.label+=" "+count[g.label]});
+  const want=(navigator.language||"en").slice(0,2).toLowerCase();
+  let pick=got.findIndex(g=>g.lang===want);if(pick<0)pick=got.findIndex(g=>g.lang==="en");if(pick<0&&got.length===1)pick=0;
+  got.forEach((g,i)=>{const t=document.createElement("track");t.kind="subtitles";t.label=g.label;if(g.lang)t.srclang=g.lang;t.src=URL.createObjectURL(new Blob([toVtt(g.text)],{type:"text/vtt"}));t.dataset.blob="1";v.appendChild(t);t.track.mode=i===pick?"showing":"disabled"});
+  $("subinfo").textContent="CC: "+got.map(g=>g.label).join(", ")+" (use the player's CC menu)";
+}
+async function wmSubs(url){
+  try{
+    const fn=decodeURIComponent(url.split("/").pop()).replace(/_/g," ");
+    const api="https://commons.wikimedia.org/w/api.php?format=json&origin=*&action=query";
+    const d=await(await fetch(api+"&list=allpages&apnamespace=710&aplimit=30&apprefix="+encodeURIComponent(fn+"."))).json();
+    const titles=((d.query||{}).allpages||[]).map(p=>p.title).filter(t=>/\.(srt|vtt)$/i.test(t));
+    if(!titles.length)return[];
+    const r=await(await fetch(api+"&prop=revisions&rvprop=content&rvslots=main&titles="+encodeURIComponent(titles.join("|")))).json();
+    return Object.values((r.query||{}).pages||{}).map(p=>{const text=p.revisions&&p.revisions[0].slots.main["*"];const m=p.title.match(/\.([A-Za-z-]+)\.(?:srt|vtt)$/i);const code=m?m[1].toLowerCase():"";return text?{text,lang:code.slice(0,2),label:code?langName(code):"Subtitles"}:null}).filter(Boolean);
+  }catch(e){return[]}
+}
+async function episodesOf(id){
+  try{
+    const r=await fetch("https://archive.org/metadata/"+encodeURIComponent(id));
+    if(!r.ok)return[];
+    const files=(await r.json()).files||[];
+    let fs=files.filter(f=>/\.(mp4|m4v)$/i.test(f.name)&&!/_thumb|preview|trailer/i.test(f.name));
+    if(!fs.length)fs=files.filter(f=>/\.(webm|ogv)$/i.test(f.name));
+    const big=fs.filter(f=>!/\d+Kb/i.test(f.format||""));
+    if(big.length)fs=big;
+    const seen=new Map();
+    fs.forEach(f=>{const k=f.name.replace(/\.ia\.mp4$/i,".mp4");if(!seen.has(k)||/\.ia\.mp4$/i.test(seen.get(k).name))seen.set(k,f)});
+    const dl=n=>"https://archive.org/download/"+encodeURIComponent(id)+"/"+n.split("/").map(encodeURIComponent).join("/");
+    const subs=files.filter(f=>/\.(vtt|srt)$/i.test(f.name)&&!/chocr|_hocr/i.test(f.name));
+    const out=[...seen.values()].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}))
+      .map(f=>({label:f.title||f.name.replace(/^.*\//,"").replace(/\.[^.]+$/,"").replace(/_+/g," "),url:dl(f.name),base:f.name.replace(/\.ia\.mp4$/i,"").replace(/\.[^.\/]+$/,"")}));
+    out.forEach(e=>{
+      let m=subs.filter(f=>f.name.startsWith(e.base));
+      if(!m.length&&out.length===1)m=subs;
+      m=[...m].sort((x,y)=>(/\.vtt$/i.test(y.name)?1:0)-(/\.vtt$/i.test(x.name)?1:0));
+      const have=new Set();
+      e.subs=m.map(f=>subItem(dl(f.name),f.name)).filter(x=>{if(have.has(x.label))return false;have.add(x.label);return true});
+    });
+    return out;
+  }catch(e){return[]}
+}
+function playEpisode(c,eps,i){
+  const v=$("v"),e=eps[i];
+  v.ondurationchange=null;setLiveUI(v,false);
+  if(hls){hls.destroy();hls=null}
+  $("f").src="about:blank";show("v");
+  v.onplaying=()=>$("now").textContent=`Now playing: ${c.name} - ${e.label}`;
+  v.onerror=()=>$("now").textContent=`${e.label} is not available. Try another episode.`;
+  const nb=$("next"),hasNext=i+1<eps.length;
+  nb.hidden=true;
+  nb.onclick=()=>{$("eps").selectedIndex=i+1;playEpisode(c,eps,i+1)};
+  v.ontimeupdate=()=>{if(!hasNext)return;const left=v.duration-v.currentTime;nb.hidden=!(v.duration>60&&left<=30)};
+  v.onended=()=>{if(hasNext)nb.hidden=false};
+  $("now").textContent="Loading "+e.label+"…";
+  v.src=e.url;v.play().catch(()=>{});
+  attachSubs(v,e.subs);
+}
+function setupEpisodes(c,eps){
+  const sel=$("eps");sel.innerHTML="";
+  eps.forEach((e,i)=>{const o=document.createElement("option");o.value=i;o.textContent=`${i+1}. ${e.label}`;sel.appendChild(o)});
+  sel.hidden=false;sel.onchange=()=>playEpisode(c,eps,+sel.value);
+  playEpisode(c,eps,0);
+}
+async function play(c){
+  current=c;
+  const v=$("v"),fr=$("f"),a=$("a"),w=c.id?"f":c.radio?"a":"v";
+  if(hls){hls.destroy();hls=null}
+  clearSubs(v);v.pause();a.pause();v.onended=null;v.ontimeupdate=null;$("next").hidden=true;$("eps").hidden=true;$("tools").hidden=true;
+  v.ondurationchange=null;a.ondurationchange=null;setLiveUI(v,false);setLiveUI(a,false);
+  if(w!=="f")fr.src="about:blank";show(w);
+  if(c.id){
+    $("now").textContent="Loading "+c.name+"…";
+    const eps=await episodesOf(c.id);
+    if(current!==c)return;
+    if(eps.length>1){setupEpisodes(c,eps);return}
+    if(eps.length===1&&eps[0].subs&&eps[0].subs.length){
+      playEpisode(c,eps,0);
+      v.onerror=()=>{show("f");fr.src="https://archive.org/embed/"+encodeURIComponent(c.id);$("now").textContent="Now playing: "+c.name};
+      return;
+    }
+    fr.src="https://archive.org/embed/"+encodeURIComponent(c.id);
+    $("now").textContent="Now playing: "+c.name;return;
+  }
+  const el=w==="a"?a:v;
+  $("now").textContent="Loading "+c.name+"…";
+  let url=c.url;
+  const ok=()=>{$("tools").hidden=true;$("now").textContent="Now playing: "+c.name};
+  const fail=reason=>{
+    let msg=c.name+" could not be played: "+(reason||"it is not available right now.");
+    if(c.ref||c.ua)msg+=" This stream also asks for a specific Referer or User-Agent header, which web browsers cannot send. VLC can.";
+    $("now").textContent=msg;showTools(c,url);
+  };
+  let subList=[];
+  if(c.nasa){
+    try{
+      const files=await (await fetch(c.url)).json();
+      if(current!==c)return;
+      subList=files.filter(u=>/\.(vtt|srt)$/i.test(u)).map(u=>subItem(u.replace(/^http:/,"https:"),u));
+      const mp4=files.filter(u=>/\.mp4$/i.test(u));
+      url=mp4.find(u=>/~medium\.mp4$/i.test(u))||mp4.find(u=>/~small\.mp4$/i.test(u))||mp4.find(u=>/~mobile\.mp4$/i.test(u))||mp4[0];
+      if(!url)return fail();
+    }catch(e){return fail()}
+  }
+  if(location.protocol==="https:"&&/^http:/.test(url))url=url.replace(/^http:/,"https:");
+  const direct=c.radio||c.direct||c.nasa;
+  const useHls=(direct?/\.m3u8/i.test(url):true)&&window.Hls&&Hls.isSupported();
+  if(useHls){
+    let recovered=false;
+    hls=new Hls();hls.subtitleDisplay=true;hls.loadSource(url);hls.attachMedia(el);
+    hls.on(Hls.Events.SUBTITLE_TRACKS_UPDATED,(_,d)=>{
+      const t=d.subtitleTracks||[];if(!t.length)return;
+      const want=(navigator.language||"en").slice(0,2).toLowerCase(),lg=x=>(x.lang||"").slice(0,2).toLowerCase();
+      let i=t.findIndex(x=>lg(x)===want);if(i<0)i=t.findIndex(x=>lg(x)==="en");if(i<0)i=t.findIndex(x=>x.default);
+      if(i>=0)hls.subtitleTrack=i;
+      $("subinfo").textContent="CC: "+t.map(x=>x.name||x.lang||"Subtitles").join(", ")+" (use the player's CC menu)";
+    });
+    hls.on(Hls.Events.LEVEL_LOADED,(_,d)=>setLiveUI(el,!!(d.details&&d.details.live)));
+    hls.on(Hls.Events.MANIFEST_PARSED,()=>{el.play().catch(()=>{});ok()});
+    hls.on(Hls.Events.ERROR,(_,d)=>{
+      if(!d.fatal)return;
+      if(d.type==="mediaError"&&!recovered){recovered=true;hls.recoverMediaError();return}
+      fail(explain(d));
+    });
+  }else if(direct||el.canPlayType("application/vnd.apple.mpegurl")){
+    el.src=url;el.onplaying=ok;el.ondurationchange=()=>setLiveUI(el,el.duration===Infinity);
+    el.onerror=()=>fail(el.error&&el.error.code===4?"this format or address is not supported by your browser.":"the stream failed to load, or the server refused the request.");
+    el.play().catch(()=>{});
+  }else fail("your browser cannot play this kind of stream.");
+  if(!c.radio&&el===v){
+    if(subList.length)attachSubs(v,subList);
+    else if(c.direct&&/wikimedia\.org/.test(url))wmSubs(url).then(l=>{if(current===c&&l.length)attachSubs(v,l)});
+  }
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>setSection(b.dataset.s));
+$("avail").onclick=()=>{onlyAvail=!onlyAvail;if(onlyAvail)checkAll();else{chk++;checking=false;label()}render()};
+function pickChanged(){
+  if($("pick").value==="custom:url"){
+    let cur="";try{cur=localStorage.getItem("freetv:custom")||""}catch(e){}
+    const u=prompt("Paste the link to an M3U / M3U8 playlist (https):",cur);
+    if(!u||!/^https?:\/\//i.test(u.trim())){$("grp").selectedIndex=lastGrp;fillPick(lastGrp);if(lastPick)$("pick").value=lastPick;return}
+    try{localStorage.setItem("freetv:custom",u.trim())}catch(e){}
+  }
+  lastGrp=$("grp").selectedIndex;lastPick=$("pick").value;$("q").value="";load();
+}
+$("pick").onchange=pickChanged;
+$("grp").onchange=()=>{fillPick($("grp").selectedIndex);pickChanged()};
+$("q").oninput=()=>{if(isServer()){clearTimeout(timer);timer=setTimeout(load,400)}else render()};
+function makeBar(el,host,withFs){
+  const bar=document.createElement("div");bar.className="livebar";bar.hidden=true;
+  const range=()=>{const r=el.seekable;return r&&r.length?[r.start(0),r.end(r.length-1)]:null};
+  const fmt=t=>{t=Math.round(t);return Math.floor(t/60)+":"+String(t%60).padStart(2,"0")};
+  const tag=document.createElement("button");tag.type="button";tag.className="livetag";tag.textContent="\u25CF LIVE";tag.title="Jump to the live edge";tag.hidden=true;
+  tag.onclick=()=>{const r=range();if(r)el.currentTime=(hls&&el===$("v")&&hls.liveSyncPosition)||Math.max(r[0],r[1]-1);el.play().catch(()=>{})};
+  bar.appendChild(tag);
+  if(withFs){
+    const fs=document.createElement("button");fs.type="button";fs.className="lb";fs.textContent="\u26F6";fs.setAttribute("aria-label","Fullscreen");fs.title="Fullscreen (filters stay on)";
+    fs.onclick=()=>{
+      const sc=$("screen");
+      if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);
+      else if(sc.requestFullscreen||sc.webkitRequestFullscreen)(sc.requestFullscreen||sc.webkitRequestFullscreen).call(sc);
+      else if(el.webkitEnterFullscreen)el.webkitEnterFullscreen();
+    };
+    bar.appendChild(fs);
+  }
+  const upd=()=>{
+    const r=range(),can=!!r&&r[1]-r[0]>2;
+    const behind=can?r[1]-el.currentTime:0;
+    if(behind>12){tag.textContent="\u25CF GO LIVE (-"+fmt(behind)+")";tag.classList.add("behind")}
+    else{tag.textContent="\u25CF LIVE";tag.classList.remove("behind")}
+  };
+  ["timeupdate","progress","durationchange","seeked","loadedmetadata"].forEach(e=>el.addEventListener(e,upd));
+  upd();
+  host.appendChild(bar);return bar;
+}
+const vbar=makeBar($("v"),$("screen"),true),abar=makeBar($("a"),$("deck"),false);
+function setLiveUI(el,live){
+  // Native controls (with the seek/progress bar) stay on for live streams too;
+  // our overlay only adds the LIVE / GO LIVE tag and a fullscreen button.
+  el.controls=true;
+  const bar=el===$("v")?vbar:abar;
+  bar.querySelector(".livetag").hidden=!live;
+  bar.hidden=el===$("v")?false:!live;
+}
+const FXG=[
+  ["Colour",[["bw","Black & white"],["sepia","Sepia"],["contrast","High contrast"],["vivid","Vivid"],["faded","Faded"],["invert","Invert"],["night","Night"],["cool","Cool tint"],["green","Green phosphor"],["amber","Amber mono"]]],
+  ["Effects",[["scan","Scanlines"],["vig","Vignette"],["crt","CRT"],["grain","Film grain"],["vhs","VHS"],["mask","Pixel mask"],["glow","Neon glow"],["blur","Soft blur"],["mirror","Mirror"]]]
+];
+const FX=FXG.flatMap(g=>g[1]);
+let fx=new Set(),fxOpen=false;
+try{fx=new Set(JSON.parse(localStorage.getItem("freetv:fx")||"[]").filter(k=>FX.some(f=>f[0]===k)))}catch(e){}
+function applyFx(){
+  $("screen").className="screen"+[...fx].map(k=>" fx-"+k).join("");
+  document.querySelectorAll("#fxpanel button[data-fx]").forEach(b=>{const k=b.dataset.fx;b.setAttribute("aria-pressed",k==="none"?fx.size===0:fx.has(k))});
+  const t=$("fxtoggle");
+  t.setAttribute("aria-expanded",String(fxOpen));
+  t.textContent="Video filters"+(fx.size?` (${fx.size} on)`:"")+(fxOpen?" \u25B4":" \u25BE");
+  $("fxpanel").hidden=!fxOpen;
+  try{localStorage.setItem("freetv:fx",JSON.stringify([...fx]))}catch(e){}
+}
+(function(){
+  const bar=$("fxbar"),t=document.createElement("button");
+  t.id="fxtoggle";t.type="button";t.setAttribute("aria-controls","fxpanel");
+  t.onclick=()=>{fxOpen=!fxOpen;applyFx()};
+  const panel=document.createElement("div");panel.id="fxpanel";panel.className="fxpanel";
+  const mk=(parent,k,n)=>{
+    const b=document.createElement("button");b.type="button";b.dataset.fx=k;b.textContent=n;
+    b.onclick=()=>{if(k==="none")fx.clear();else if(fx.has(k))fx.delete(k);else fx.add(k);applyFx()};
+    parent.appendChild(b);
+  };
+  const top=document.createElement("div");top.className="fxgroup";mk(top,"none","None");panel.appendChild(top);
+  FXG.forEach(([g,items])=>{
+    const row=document.createElement("div"),l=document.createElement("span");
+    row.className="fxgroup";l.textContent=g+":";row.appendChild(l);
+    items.forEach(([k,n])=>mk(row,k,n));panel.appendChild(row);
+  });
+  bar.append(t,panel);applyFx();
+})();
+setSection("tv");
+(function(){const c=$("clock"),p=n=>String(n).padStart(2,"0");const t=()=>{const d=new Date();c.textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds())};t();setInterval(t,1000)})();
+</script>
+</body>
+</html>
